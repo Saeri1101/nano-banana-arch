@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nano Banana — Pro Design Workspace</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-shell" id="appShell">
+        <header class="topbar mono">
+            <div class="logo">NANO BANANA</div>
+            <div class="tbi" id="xInfo"></div>
+            <div class="topbar-actions">
+                <button class="bs" onclick="resetDef()">Reset Defaults</button>
+                <button class="bs ba" onclick="cpFinal()">Copy Prompt</button>
+                <button class="bs" onclick="restart()">Start Over</button>
+            </div>
+        </header>
+
+        <main class="workspace">
+            <nav class="snav mono" id="snav"></nav>
+            
+            <section class="ma" id="ma"></section>
+            
+            <aside class="pr">
+                <div class="prh mono">Live Prompt</div>
+                
+                <div class="dia-wrap" id="diaWrap">
+                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" id="dynamicDiagram">
+                        <line x1="5" y1="85" x2="95" y2="85" id="dia-ground" stroke="#8a9e96" />
+                        <rect x="25" y="45" width="50" height="40" id="dia-mid" class="dia-mass" />
+                        <rect x="35" y="15" width="30" height="70" id="dia-tower" class="dia-mass" />
+                        <path d="M25 55 L50 30 L75 55 V85 H25 Z" id="dia-house" class="dia-mass" />
+                        <path d="M15 15 H85 V85 H15 Z M15 15 L35 35 V85 M85 15 L65 35 V85 M35 35 H65" id="dia-int" class="dia-mass" />
+                    </svg>
+                </div>
+                
+                <div class="prp mono" id="prp"></div>
+                <div class="prb"><div class="ptx mono" id="ptx"></div></div>
+                <div class="prf">
+                    <button class="bs ba mono" style="width:100%" onclick="cpFinal()">Copy Full Prompt</button>
+                </div>
+            </aside>
+        </main>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
