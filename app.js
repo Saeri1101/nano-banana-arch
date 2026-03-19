@@ -1,7 +1,6 @@
 // ════════════════════════════════════════════════════════════
-// NANO BANANA — Integrated Architectural Prompt Engine
+// NANO BANANA — Integrated Architectural Prompt Engine  
 // ════════════════════════════════════════════════════════════
-
 // ── PALETTE ─────────────────────────────────────────────────
 const P = {
   navy:  '#205072',
@@ -317,55 +316,81 @@ function getSteps(){
   return st;
 }
 
-function render(){
-  const steps=getSteps(), nav=document.getElementById('snav');
-  let nh='<div class="snl mono">STEPS</div>';
-  steps.forEach((s,i)=>{
-    let c=0; Object.keys(S.sel).forEach(k=>{ if(k===s.id||k.startsWith(s.id+'_')){ const v=S.sel[k]; c+=(v instanceof Set?v.size:(v?1:0)); }});
-    nh+=`<div class="si ${i===S.step?'act':''}" onclick="goS(${i})"><span class="sn mono">${i+1}</span><span>${s.t}</span><span class="ss mono ${c>0?'sok':'sno'}">${c>0?'✓'+c:'—'}</span></div>`;
-  });
-  nav.innerHTML=nh; renderStep(); renderPrompt();
-}
-
-function goS(i){ S.step=i; render(); }
-function getG(sid){ return GUIDE[S.type]?.[sid] || GUIDE._default?.[sid] || null; }
-
 function renderStep(){
   const steps=getSteps(), step=steps[S.step], a=document.getElementById('ma');
-  let h=`<div class="mhs mono">STEP ${S.step+1} OF ${steps.length}</div><div class="mht">${step.t}</div>`;
-  const conflicts = checkConflicts();
-  if (conflicts.length > 0) conflicts.forEach(c => h += `<div class="guide gw"><div class="gl mono">⚠️ SYSTEM WARNING</div><div class="gt">${c.t}: ${c.d}</div></div>`);
-
+  let h=`<div style="margin-bottom:6px"><div class="mhs mono">STEP ${S.step+1} OF ${steps.length}</div><div class="mht">${step.t}</div><div class="mhd">${step.d||''}</div></div>`;
   const g=getG(step.id);
   if(g&&(g.t||g.r?.length)){
     h+=`<div class="guide gi"><div class="gl mono">💡 Best for ${S.type}</div><div class="gt">${g.t}</div>`;
     if(g.r?.length) h+=`<div class="gr">${g.r.map(r=>`<span class="rt pri ${isROn(r)?'on':''}" onclick="rTog('${step.id}','${esc(r)}')">${isROn(r)?'✓ ':''}${r}</span>`).join('')}</div>`;
     h+=`</div>`;
   }
+  if(g?.r2?.length){
+    h+=`<div class="guide gs"><div class="gl mono">💬 Also consider</div><div class="gr">${g.r2.map(r=>`<span class="rt sec ${isROn(r)?'on':''}" onclick="rTog('${step.id}','${esc(r)}')">${isROn(r)?'✓ ':''}${r}</span>`).join('')}</div></div>`;
+  }
+
+  // LEED tracking (Restored Warnings & Added Upgrade Logic)
+  if(step.id==='sustain'&&S.leed){
+    const currIdx = LEED_LEVELS.findIndex(l=>l.id===S.leed);
+    const leedDef = LEED_LEVELS[currIdx];
+    const selected = gs('sustain');
+
+    if(leedDef?.features){
+      const missing = leedDef.features.filter(f=>!selected.has(f));
+      
+      if(missing.length > 0){
+        // Warning: Missing features for current target
+        h+=`<div class="guide gw"><div class="gl mono">⚠️ LEED ${leedDef.t.toUpperCase()} — ${missing.length} feature${missing.length>1?'s':''} missing</div><div class="gt">Add these back to meet your target: <strong>${missing.join(', ')}</strong></div><div class="gr">${missing.map(f=>`<span class="rt pri" onclick="gs('sustain').add('${esc(f)}');render()">+ Add ${f}</span>`).join('')}</div></div>`;
+      } else {
+        // Target met. Check for higher level qualification
+        let highestLevel = leedDef;
+        let nextLevelHint = '';
+
+        for(let i = currIdx + 1; i < LEED_LEVELS.length; i++){
+          const higherMissing = LEED_LEVELS[i].features.filter(f=>!selected.has(f));
+          if(higherMissing.length === 0){
+            highestLevel = LEED_LEVELS[i];
+          } else if (highestLevel === leedDef && higherMissing.length <= 2) {
+            nextLevelHint = `Add <strong>${higherMissing.join(', ')}</strong> to reach ${LEED_LEVELS[i].t}.`;
+          }
+        }
+
+        if(highestLevel.id !== leedDef.id){
+          // Upgrade available
+          h+=`<div class="guide gi" style="background:var(--leedd);border-color:var(--leedb)"><div class="gl mono" style="color:var(--leed)">🌱 UPGRADE AVAILABLE</div><div class="gt">You selected enough features to qualify for <strong>LEED ${highestLevel.t.toUpperCase()}</strong>.</div><div class="gr"><span class="rt pri" onclick="S.leed='${highestLevel.id}';render()">Upgrade Target to ${highestLevel.t}</span></div></div>`;
+        } else {
+          // Target met, no upgrade yet
+          h+=`<div class="guide gi"><div class="gl mono">✓ LEED ${leedDef.t.toUpperCase()} features complete</div>${nextLevelHint?`<div class="gt" style="margin-top:4px">${nextLevelHint}</div>`:''}</div>`;
+        }
+      }
+    }
+  }
 
   const sid=step.id;
-  if(sid==='role') h+=rRole();
-  else if(sid==='medium') h+=rMedium();
-  else if(sid==='section') h+=rSection();
-  else if(sid==='style') h+=rStyle();
-  else if(sid==='camera') h+=rCamera();
+  if(sid==='role')           h+=rRole();
+  else if(sid==='medium')    h+=rMedium();
+  else if(sid==='style')     h+=rStyle();
+  else if(sid==='camera')    h+=rCamera();
   else if(sid==='ext_mat'||sid==='int_mat') h+=rDrill(sid,sid==='ext_mat'?getExtD():getIntD());
-  else if(sid==='sustain') h+=rDrill('sustain',getSustD());
-  else if(sid==='scale') h+=rScale();
-  else if(sid==='site') h+=rSite();
+  else if(sid==='scale')     h+=rScale();
+  else if(sid==='sustain')   h+=rDrill('sustain',getSustD());
+  else if(sid==='site')      h+=rSite();
   else if(sid==='furniture') h+=rDrill('furniture',getFurnD());
   else if(sid==='int_scale') h+=rIntScale();
-  else if(sid==='weather') h+=rWeather();
-  else if(sid==='lighting') h+=rLight();
+  else if(sid==='weather')   h+=rWeather();
+  else if(sid==='lighting')  h+=rLight();
   else if(sid==='entourage') h+=rEnt();
-  else if(sid==='color') h+=rColor();
-  else if(sid==='negative') h+=rNeg();
+  else if(sid==='color')     h+=rColor();
+  else if(sid==='negative')  h+=rNeg();
   else if(sid==='tech_output') h+=rTechOut();
 
-  h+=`<div class="navb">${S.step>0?`<button class="nb" onclick="goS(${S.step-1})">← Back</button>`:'<div></div>'}<button class="nb pri" onclick="${S.step<steps.length-1?`goS(${S.step+1})`:'cpFinal()'}">${S.step<steps.length-1?'Next →':'Copy Prompt'}</button></div>`;
+  h+=`<div class="navb">`;
+  h+=S.step>0?`<button class="nb" onclick="goS(${S.step-1})">← ${steps[S.step-1].t}</button>`:'<div></div>';
+  h+=S.step<steps.length-1?`<button class="nb pri" onclick="goS(${S.step+1})">Next: ${steps[S.step+1].t} →</button>`:`<button class="nb pri" onclick="cpFinal()">Copy Prompt</button>`;
+  h+=`</div>`;
   a.innerHTML=h; a.scrollTop=0;
+  document.querySelector('.db')?.classList.add('open');
 }
-
 // ── STEP RENDERERS ───────────────────────────────────────────
 function rRole(){ const tags={creation:['Act as an expert architectural visualizer and generate','Produce a production-grade 3D render of'],to_tech:['Convert image into technical architectural drawing']}; return '<div class="hier-items">'+(tags[S.f]||['Architectural Rendering']).map(t=>`<span class="tag ${S.sel.role===t?'on':'dim'}" onclick="S.sel.role='${esc(t)}';render()">${t}</span>`).join('')+'</div>'; }
 function rMedium(){ let h='<div class="hier-l">Category</div>'; h+=mkSpec('med_cat',[{v:'photorealistic',t:'Photo',d:''},{v:'linework',t:'Linework',d:''}]); return h; }
