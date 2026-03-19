@@ -329,43 +329,47 @@ function renderStep(){
     h+=`<div class="guide gs"><div class="gl mono">💬 Also consider</div><div class="gr">${g.r2.map(r=>`<span class="rt sec ${isROn(r)?'on':''}" onclick="rTog('${step.id}','${esc(r)}')">${isROn(r)?'✓ ':''}${r}</span>`).join('')}</div></div>`;
   }
 
-  // LEED tracking (Restored Warnings & Added Upgrade Logic)
-  if(step.id==='sustain'&&S.leed){
-    const currIdx = LEED_LEVELS.findIndex(l=>l.id===S.leed);
-    const leedDef = LEED_LEVELS[currIdx];
-    const selected = gs('sustain');
+// LEED tracking (Point/Count-Based Level Up)
+      if(step.id==='sustain'&&S.leed){
+        const currIdx = LEED_LEVELS.findIndex(l=>l.id===S.leed);
+        const leedDef = LEED_LEVELS[currIdx];
+        const selected = gs('sustain');
+        const selCount = selected.size;
 
-    if(leedDef?.features){
-      const missing = leedDef.features.filter(f=>!selected.has(f));
-      
-      if(missing.length > 0){
-        // Warning: Missing features for current target
-        h+=`<div class="guide gw"><div class="gl mono">⚠️ LEED ${leedDef.t.toUpperCase()} — ${missing.length} feature${missing.length>1?'s':''} missing</div><div class="gt">Add these back to meet your target: <strong>${missing.join(', ')}</strong></div><div class="gr">${missing.map(f=>`<span class="rt pri" onclick="gs('sustain').add('${esc(f)}');render()">+ Add ${f}</span>`).join('')}</div></div>`;
-      } else {
-        // Target met. Check for higher level qualification
-        let highestLevel = leedDef;
-        let nextLevelHint = '';
+        if(leedDef?.features){
+          const missing = leedDef.features.filter(f=>!selected.has(f));
+          
+          if(missing.length > 0){
+            // Warning: Missing core features for current target
+            h+=`<div class="guide gw"><div class="gl mono">⚠️ LEED ${leedDef.t.toUpperCase()} — Core feature missing</div><div class="gt">Add back to maintain target: <strong>${missing.join(', ')}</strong></div><div class="gr">${missing.map(f=>`<span class="rt pri" onclick="gs('sustain').add('${esc(f)}');render()">+ Add ${f}</span>`).join('')}</div></div>`;
+          } else {
+            // Target met. Check total volume for upgrade
+            let suggestedLevel = leedDef;
+            let nextLevelHint = '';
 
-        for(let i = currIdx + 1; i < LEED_LEVELS.length; i++){
-          const higherMissing = LEED_LEVELS[i].features.filter(f=>!selected.has(f));
-          if(higherMissing.length === 0){
-            highestLevel = LEED_LEVELS[i];
-          } else if (highestLevel === leedDef && higherMissing.length <= 2) {
-            nextLevelHint = `Add <strong>${higherMissing.join(', ')}</strong> to reach ${LEED_LEVELS[i].t}.`;
+            // Define thresholds
+            if (selCount >= 12 && currIdx < 4) suggestedLevel = LEED_LEVELS.find(l=>l.id==='platinum');
+            else if (selCount >= 8 && currIdx < 3) suggestedLevel = LEED_LEVELS.find(l=>l.id==='gold');
+            else if (selCount >= 5 && currIdx < 2) suggestedLevel = LEED_LEVELS.find(l=>l.id==='silver');
+
+            if(suggestedLevel.id !== leedDef.id){
+              // Upgrade available based on total tag count
+              h+=`<div class="guide gi" style="background:var(--leedd);border-color:var(--leedb)"><div class="gl mono" style="color:var(--leed)">🌱 UPGRADE AVAILABLE</div><div class="gt">With ${selCount} sustainable features, you qualify for <strong>LEED ${suggestedLevel.t.toUpperCase()}</strong>.</div><div class="gr"><span class="rt pri" onclick="S.leed='${suggestedLevel.id}';render()">Upgrade Target to ${suggestedLevel.t}</span></div></div>`;
+            } else {
+              // Calculate how many more tags needed for the next tier
+              const nextLevel = LEED_LEVELS[currIdx + 1];
+              if (nextLevel) {
+                const threshold = currIdx === 1 ? 5 : (currIdx === 2 ? 8 : 12);
+                const needed = threshold - selCount;
+                if (needed <= 2 && needed > 0) {
+                  nextLevelHint = `Add <strong>${needed}</strong> more sustainable feature${needed>1?'s':''} to reach ${nextLevel.t}.`;
+                }
+              }
+              h+=`<div class="guide gi"><div class="gl mono">✓ LEED ${leedDef.t.toUpperCase()} features complete</div>${nextLevelHint?`<div class="gt" style="margin-top:4px">${nextLevelHint}</div>`:''}</div>`;
+            }
           }
         }
-
-        if(highestLevel.id !== leedDef.id){
-          // Upgrade available
-          h+=`<div class="guide gi" style="background:var(--leedd);border-color:var(--leedb)"><div class="gl mono" style="color:var(--leed)">🌱 UPGRADE AVAILABLE</div><div class="gt">You selected enough features to qualify for <strong>LEED ${highestLevel.t.toUpperCase()}</strong>.</div><div class="gr"><span class="rt pri" onclick="S.leed='${highestLevel.id}';render()">Upgrade Target to ${highestLevel.t}</span></div></div>`;
-        } else {
-          // Target met, no upgrade yet
-          h+=`<div class="guide gi"><div class="gl mono">✓ LEED ${leedDef.t.toUpperCase()} features complete</div>${nextLevelHint?`<div class="gt" style="margin-top:4px">${nextLevelHint}</div>`:''}</div>`;
-        }
       }
-    }
-  }
-
   const sid=step.id;
   if(sid==='role')           h+=rRole();
   else if(sid==='medium')    h+=rMedium();
