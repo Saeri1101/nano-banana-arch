@@ -1,145 +1,204 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nano Banana — Prompt Builder</title>
-<link rel="stylesheet" href="nano_banana.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nano Banana — Prompt Builder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- Screen 1: Formula -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 1 — Formula
+══════════════════════════════════════════════ -->
 <div class="screen active" id="s_formula">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><div></div></div>
+  <div class="app-topbar">
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">What are you starting with?</div>
     <div class="ssub">Pick based on your input material.</div>
-    <div class="cards c2" id="fCards" style="max-width:800px;width:100%"></div>
+    <div class="cards c2" id="fCards" style="max-width:840px;width:100%"></div>
   </div>
 </div>
 
-<!-- Screen 2: Entry path -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 2 — Entry path
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_entry">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_formula')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_formula')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">How do you want to start?</div>
     <div class="ssub">Choose by building program, material aesthetic, or skip directly to the builder.</div>
-    <div class="cards c2" style="max-width:800px;width:100%">
+    <!-- regular options first -->
+    <div class="cards c2" style="max-width:840px;width:100%;margin-bottom:12px">
       <div class="card" onclick="pickEntry('program')">
-        <div class="ct">By Building Program</div>
-        <div class="cd">I know the building type — library, museum, office, house, etc. The system will suggest appropriate materials and styles.</div>
+        <div class="card-swatch" style="background:#329D9C"></div>
+        <div class="card-body">
+          <div class="ct">By Building Program</div>
+          <div class="cd">I know the building type — library, museum, office, house, etc. The system will suggest appropriate materials and styles.</div>
+        </div>
       </div>
       <div class="card" onclick="pickEntry('aesthetic')">
-        <div class="ct">By Material Aesthetic</div>
-        <div class="cd">I know the look I want — woody, concrete, steel, mixed. Works when the program is unconventional or you want a cross-typology style.</div>
+        <div class="card-swatch" style="background:#56C596"></div>
+        <div class="card-body">
+          <div class="ct">By Material Aesthetic</div>
+          <div class="cd">I know the look I want — woody, concrete, steel, mixed. Works when the program is unconventional or you want a cross-typology style.</div>
+        </div>
       </div>
     </div>
-    <div style="margin-top:12px;max-width:800px;width:100%">
-      <div class="skip-card" onclick="pickEntry('skip')" style="padding:14px">
-        <div class="sk-t">Skip → Go directly to builder</div>
-        <div class="sk-d">For experienced users, inpainting, or render-to-drawing. Jump straight to manual settings.</div>
-      </div>
+    <!-- skip always last -->
+    <div class="skip-card" onclick="pickEntry('skip')" style="max-width:840px">
+      <div class="sk-t">Skip → Go directly to builder</div>
+      <div class="sk-d">For experienced users, inpainting, or render-to-drawing. Jump straight to manual settings.</div>
     </div>
   </div>
 </div>
 
-<!-- Screen 2a: Building type (by program) -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 2a — Building type (by program)
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_type">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_entry')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_entry')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">What are you building?</div>
     <div class="ssub">Click a category to expand, then pick your type.</div>
-    <div class="typ-list" id="typList" style="max-width:700px;width:100%"></div>
+    <div class="typ-list" id="typList"></div>
   </div>
 </div>
 
-<!-- Screen 2b: Material style (by aesthetic) -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 2b — Material style (by aesthetic)
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_matstyle">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_entry')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_entry')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">What should it look like?</div>
     <div class="ssub">Pick a material language. The system will suggest matching styles, finishes, and lighting.</div>
-    <div class="mat-style-g" id="matStyleGrid" style="max-width:800px;width:100%"></div>
+    <div class="mat-style-g" id="matStyleGrid"></div>
   </div>
 </div>
 
-<!-- Screen 3: Budget -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 3 — Budget / Project Level
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_budget">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show(S.entryPath==='aesthetic'?'s_matstyle':S.entryPath==='skip'?'s_entry':'s_type')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" id="budgetBack" onclick="goBackFromBudget()">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">Project Level</div>
     <div class="ssub">Affects material quality and triggers warnings for mismatches.</div>
-    <div class="cards c3" id="bCards" style="max-width:800px;width:100%"></div>
+    <div class="cards c3" id="bCards" style="max-width:840px;width:100%"></div>
   </div>
 </div>
 
-<!-- Screen 4: Interior / Exterior -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 4 — Interior / Exterior
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_ie">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_budget')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_budget')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">Interior or Exterior?</div>
     <div class="ssub">Changes materials, lighting, furniture, and entourage completely.</div>
-    <div class="cards c2" id="ieCards" style="max-width:800px;width:100%"></div>
+    <div class="cards c2" id="ieCards" style="max-width:840px;width:100%"></div>
   </div>
 </div>
 
-<!-- Screen 5: Climate -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 5 — Climate
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_climate">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_ie')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_ie')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">Where is the project?</div>
     <div class="ssub">This sets default weather, vegetation, and atmospheric conditions.</div>
-    <div class="climate-g" id="climateGrid" style="max-width:800px;width:100%"></div>
+    <div class="climate-g" id="climateGrid"></div>
   </div>
 </div>
 
-<!-- Screen 6: LEED -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 6 — LEED
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_leed">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_climate')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_climate')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">Sustainability Certification</div>
     <div class="ssub">If the project targets LEED, the system will add visible sustainable features. Skip if not applicable.</div>
-    <div class="leed-g" id="leedGrid" style="max-width:800px;width:100%"></div>
-    <div style="margin-top:12px;max-width:500px;width:100%"><div class="skip-card" style="padding:14px" onclick="pickLeed(null)"><div class="sk-t">Skip — No LEED target</div></div></div>
+    <!-- LEED options first -->
+    <div class="leed-g" id="leedGrid" style="margin-bottom:14px"></div>
+    <!-- skip last -->
+    <div class="skip-card" style="max-width:840px" onclick="pickLeed(null)">
+      <div class="sk-t">Skip — No LEED target</div>
+    </div>
   </div>
 </div>
 
-<!-- Screen 7: Firm preset -->
+<!-- ══════════════════════════════════════════════
+     SCREEN 7 — Firm Preset
+══════════════════════════════════════════════ -->
 <div class="screen" id="s_firm">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_leed')">← Back</button></div>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="show('s_leed')">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-spacer"></span>
+  </div>
   <div class="scr-body">
     <div class="stitle">Design DNA Preset</div>
     <div class="ssub">Pick a firm style to auto-fill defaults, or skip to use smart defaults.</div>
-    <div class="skip-card" onclick="pickFirm(null)" style="max-width:920px;width:100%">
+    <!-- firm cards first -->
+    <div class="firm-g" id="firmGrid" style="margin-bottom:14px"></div>
+    <!-- skip last -->
+    <div class="skip-card" onclick="pickFirm(null)" style="max-width:960px">
       <div class="sk-t">Skip — Use Smart Defaults</div>
       <div class="sk-d">Best materials, lighting, and weather for your building type, budget, and climate. Adjust anything after.</div>
     </div>
-    <div class="firm-g" id="firmGrid" style="max-width:920px;width:100%"></div>
   </div>
 </div>
 
-<!-- Screen 8: Drawing Type (for Render → Drawing formula) -->
-<div class="screen" id="s_drawtype">
-  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_formula')">← Back</button></div>
-  <div class="scr-body">
-    <div class="stitle">What drawing do you need?</div>
-    <div class="ssub">Pick the type of technical drawing to generate from your image. This goes directly to the builder.</div>
-    <div id="drawTypeGrid" style="max-width:800px;width:100%"></div>
-  </div>
-</div>
-
-<!-- Builder -->
+<!-- ══════════════════════════════════════════════
+     BUILDER
+══════════════════════════════════════════════ -->
 <div class="builder" id="bld">
-  <div class="topbar mono">
-    <button class="bs" onclick="restart()" style="margin-right:4px">← Back</button>
-    <span class="tbl">NANO BANANA</span>
-    <span class="tbt" id="xIE"></span>
-    <span class="tbt" id="xBud"></span>
-    <span class="tbt" id="xClim"></span>
-    <span class="tbt" id="xLeed"></span>
-    <span class="tbi" id="xInfo"></span>
-    <button class="bs" onclick="resetDef()">Reset Defaults</button>
-    <button class="bs ba" onclick="cpFinal()">Copy Prompt</button>
+  <div class="app-topbar">
+    <button class="tbar-back" onclick="restart()">← Back</button>
+    <span class="tbar-logo mono">NANO BANANA</span>
+    <span class="tbar-tag mono" id="xIE"></span>
+    <span class="tbar-tag mono" id="xBud"></span>
+    <span class="tbar-tag mono" id="xClim"></span>
+    <span class="tbar-tag mono" id="xLeed"></span>
+    <span class="tbar-info" id="xInfo"></span>
+    <button class="tbar-btn" onclick="resetDef()">Reset Defaults</button>
+    <button class="tbar-btn primary mono" onclick="cpFinal()">Copy Prompt</button>
   </div>
   <div class="bsplit">
     <div style="flex:1;display:flex;overflow:hidden">
@@ -150,11 +209,11 @@
       <div class="prh mono">Live Prompt</div>
       <div class="prp mono" id="prp"></div>
       <div class="prb"><div class="ptx mono" id="ptx"></div></div>
-      <div class="prf"><button class="bs ba mono" style="width:100%" onclick="cpFinal()">Copy Full Prompt</button></div>
+      <div class="prf"><button class="prf-btn mono" onclick="cpFinal()">Copy Full Prompt</button></div>
     </div>
   </div>
 </div>
 
-<script src="nano_banana.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
