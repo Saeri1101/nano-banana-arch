@@ -607,4 +607,21 @@ body {
   border: 1.5px solid #CFF4D2;
   color: #205072;
   font-size: .75rem;
-  font-weight:
+  font-weight: 700;
+  letter-spacing: .03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 14px rgba(0,0,0,.14);
+  transition: all .15s;
+  font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  line-height: 1.2;
+}
+.circle-back:hover {
+  background: #b8efc0;
+  border-color: #56C596;
+  transform: scale(1.06);
+  box-shadow: 0 4px 16px rgba(0,0,0,.15);
+}
