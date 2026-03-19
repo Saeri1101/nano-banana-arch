@@ -1,49 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nano Banana — Pro Design Workspace</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nano Banana — Prompt Builder</title>
+<link rel="stylesheet" href="nano_banana.css">
 </head>
 <body>
-    <div class="app-shell" id="appShell">
-        <header class="topbar mono">
-            <div class="logo">NANO BANANA</div>
-            <div class="tbi" id="xInfo"></div>
-            <div class="topbar-actions">
-                <button class="bs" onclick="resetDef()">Reset Defaults</button>
-                <button class="bs ba" onclick="cpFinal()">Copy Prompt</button>
-                <button class="bs" onclick="restart()">Start Over</button>
-            </div>
-        </header>
 
-        <main class="workspace">
-            <nav class="snav mono" id="snav"></nav>
-            
-            <section class="ma" id="ma"></section>
-            
-            <aside class="pr">
-                <div class="prh mono">Live Prompt</div>
-                
-                <div class="dia-wrap" id="diaWrap">
-                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2" id="dynamicDiagram">
-                        <line x1="5" y1="85" x2="95" y2="85" id="dia-ground" stroke="#8a9e96" />
-                        <rect x="25" y="45" width="50" height="40" id="dia-mid" class="dia-mass" />
-                        <rect x="35" y="15" width="30" height="70" id="dia-tower" class="dia-mass" />
-                        <path d="M25 55 L50 30 L75 55 V85 H25 Z" id="dia-house" class="dia-mass" />
-                        <path d="M15 15 H85 V85 H15 Z M15 15 L35 35 V85 M85 15 L65 35 V85 M35 35 H65" id="dia-int" class="dia-mass" />
-                    </svg>
-                </div>
-                
-                <div class="prp mono" id="prp"></div>
-                <div class="prb"><div class="ptx mono" id="ptx"></div></div>
-                <div class="prf">
-                    <button class="bs ba mono" style="width:100%" onclick="cpFinal()">Copy Full Prompt</button>
-                </div>
-            </aside>
-        </main>
+<!-- Screen 1: Formula -->
+<div class="screen active" id="s_formula">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><div></div></div>
+  <div class="scr-body">
+    <div class="stitle">What are you starting with?</div>
+    <div class="ssub">Pick based on your input material.</div>
+    <div class="cards c2" id="fCards" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 2: Entry path -->
+<div class="screen" id="s_entry">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_formula')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">How do you want to start?</div>
+    <div class="ssub">Choose by building program, material aesthetic, or skip directly to the builder.</div>
+    <div class="cards c2" style="max-width:800px;width:100%">
+      <div class="card" onclick="pickEntry('program')">
+        <div class="ct">By Building Program</div>
+        <div class="cd">I know the building type — library, museum, office, house, etc. The system will suggest appropriate materials and styles.</div>
+      </div>
+      <div class="card" onclick="pickEntry('aesthetic')">
+        <div class="ct">By Material Aesthetic</div>
+        <div class="cd">I know the look I want — woody, concrete, steel, mixed. Works when the program is unconventional or you want a cross-typology style.</div>
+      </div>
     </div>
-    <script src="script.js"></script>
+    <div style="margin-top:12px;max-width:800px;width:100%">
+      <div class="skip-card" onclick="pickEntry('skip')" style="padding:14px">
+        <div class="sk-t">Skip → Go directly to builder</div>
+        <div class="sk-d">For experienced users, inpainting, or render-to-drawing. Jump straight to manual settings.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Screen 2a: Building type (by program) -->
+<div class="screen" id="s_type">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_entry')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">What are you building?</div>
+    <div class="ssub">Click a category to expand, then pick your type.</div>
+    <div class="typ-list" id="typList" style="max-width:700px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 2b: Material style (by aesthetic) -->
+<div class="screen" id="s_matstyle">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_entry')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">What should it look like?</div>
+    <div class="ssub">Pick a material language. The system will suggest matching styles, finishes, and lighting.</div>
+    <div class="mat-style-g" id="matStyleGrid" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 3: Budget -->
+<div class="screen" id="s_budget">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show(S.entryPath==='aesthetic'?'s_matstyle':S.entryPath==='skip'?'s_entry':'s_type')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">Project Level</div>
+    <div class="ssub">Affects material quality and triggers warnings for mismatches.</div>
+    <div class="cards c3" id="bCards" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 4: Interior / Exterior -->
+<div class="screen" id="s_ie">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_budget')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">Interior or Exterior?</div>
+    <div class="ssub">Changes materials, lighting, furniture, and entourage completely.</div>
+    <div class="cards c2" id="ieCards" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 5: Climate -->
+<div class="screen" id="s_climate">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_ie')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">Where is the project?</div>
+    <div class="ssub">This sets default weather, vegetation, and atmospheric conditions.</div>
+    <div class="climate-g" id="climateGrid" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 6: LEED -->
+<div class="screen" id="s_leed">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_climate')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">Sustainability Certification</div>
+    <div class="ssub">If the project targets LEED, the system will add visible sustainable features. Skip if not applicable.</div>
+    <div class="leed-g" id="leedGrid" style="max-width:800px;width:100%"></div>
+    <div style="margin-top:12px;max-width:500px;width:100%"><div class="skip-card" style="padding:14px" onclick="pickLeed(null)"><div class="sk-t">Skip — No LEED target</div></div></div>
+  </div>
+</div>
+
+<!-- Screen 7: Firm preset -->
+<div class="screen" id="s_firm">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_leed')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">Design DNA Preset</div>
+    <div class="ssub">Pick a firm style to auto-fill defaults, or skip to use smart defaults.</div>
+    <div class="skip-card" onclick="pickFirm(null)" style="max-width:920px;width:100%">
+      <div class="sk-t">Skip — Use Smart Defaults</div>
+      <div class="sk-d">Best materials, lighting, and weather for your building type, budget, and climate. Adjust anything after.</div>
+    </div>
+    <div class="firm-g" id="firmGrid" style="max-width:920px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Screen 8: Drawing Type (for Render → Drawing formula) -->
+<div class="screen" id="s_drawtype">
+  <div class="scr-topbar"><div class="logo mono">NANO BANANA</div><button class="back-btn" onclick="show('s_formula')">← Back</button></div>
+  <div class="scr-body">
+    <div class="stitle">What drawing do you need?</div>
+    <div class="ssub">Pick the type of technical drawing to generate from your image. This goes directly to the builder.</div>
+    <div id="drawTypeGrid" style="max-width:800px;width:100%"></div>
+  </div>
+</div>
+
+<!-- Builder -->
+<div class="builder" id="bld">
+  <div class="topbar mono">
+    <button class="bs" onclick="restart()" style="margin-right:4px">← Back</button>
+    <span class="tbl">NANO BANANA</span>
+    <span class="tbt" id="xIE"></span>
+    <span class="tbt" id="xBud"></span>
+    <span class="tbt" id="xClim"></span>
+    <span class="tbt" id="xLeed"></span>
+    <span class="tbi" id="xInfo"></span>
+    <button class="bs" onclick="resetDef()">Reset Defaults</button>
+    <button class="bs ba" onclick="cpFinal()">Copy Prompt</button>
+  </div>
+  <div class="bsplit">
+    <div style="flex:1;display:flex;overflow:hidden">
+      <nav class="snav" id="snav"></nav>
+      <div class="ma" id="ma"></div>
+    </div>
+    <div class="pr">
+      <div class="prh mono">Live Prompt</div>
+      <div class="prp mono" id="prp"></div>
+      <div class="prb"><div class="ptx mono" id="ptx"></div></div>
+      <div class="prf"><button class="bs ba mono" style="width:100%" onclick="cpFinal()">Copy Full Prompt</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="nano_banana.js"></script>
 </body>
 </html>
