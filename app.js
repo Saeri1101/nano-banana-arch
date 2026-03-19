@@ -1,6 +1,7 @@
 // ════════════════════════════════════════════════════════════
-// NANO BANANA — Integrated Architectural Prompt Engine  
+// NANO BANANA — Prompt Builder  app.js
 // ════════════════════════════════════════════════════════════
+
 // ── PALETTE ─────────────────────────────────────────────────
 const P = {
   navy:  '#205072',
@@ -37,7 +38,7 @@ const MAT_STYLES = [
   { id:'timber',         t:'Timber / Wood',      d:'Warm, natural, sustainable. CLT, cedar, charred timber.',    k:'Cedar slats, Shou Sugi Ban, Glulam, CLT, timber battens',           color: P.lt,
     defaults:{ style:['Haptic Materiality'], ext_mat:['Western Red Cedar slats','Shou Sugi Ban (charred)','Vertical battens','Glulam soffit'], int_mat:['White oak plank','Acoustic timber slats','Glulam beams','Cork tile'], lt_t:'warm 3000K', color:['Warm earth tones','Timber + brass'] }},
   { id:'concrete',       t:'Concrete / Stone',   d:'Heavy, monolithic, brutalist. Raw or refined.',              k:'Board-formed, rammed earth, travertine, terrazzo',                  color: P.navy,
-    defaults:{ style:['Monolithic Phenomenological'], ext_mat:['Board-formed concrete','Honed travertine','Bush-hammered limestone'], int_mat:['Polished concrete','Honed granite','Board-formed concrete wall','Epoxy terrazzo'], lt_t:'neutral 4000K', weather:'overcast with soft diffuse light', color:['True-color materials'] }},
+    defaults:{ style:['Stoic Monolithic Form'], ext_mat:['Board-formed concrete','Honed travertine','Bush-hammered limestone'], int_mat:['Polished concrete','Honed granite','Board-formed concrete wall','Epoxy terrazzo'], lt_t:'neutral 4000K', weather:'overcast with soft diffuse light', color:['True-color materials'] }},
   { id:'steel',          t:'Metal / Steel',      d:'Industrial, precise, high-tech. Corten, zinc, aluminum.',    k:'Corten steel, standing seam zinc, perforated mesh, diagrid',        color: P.teal,
     defaults:{ style:['Structural Expressionism','Industrial Minimalism'], ext_mat:['Corten steel (weathered rust)','Standing seam zinc','Brushed aluminum','Perforated stainless mesh'], int_mat:['Exposed steel columns','Steel grating','Raised access floor'], lt_t:'cool 6500K', color:['Cool stone + glass'] }},
   { id:'glass',          t:'Glass / Transparent',d:'Light, open, corporate. Curtain walls, structural glazing.', k:'Unitized curtain wall, fritted glass, double-skin, structural glazing', color: P.pale,
@@ -60,35 +61,27 @@ const CLIMATES = [
 ];
 
 const LEED_LEVELS = [
-  { id:null,        t:'No Target',d:'Standard Code' },
-  { id:'certified', t:'Certified',d:'40–49 pts', color: P.pale,  features:['Cool roof','Bioswale','Deep overhangs'] },
-  { id:'silver',    t:'Silver',   d:'50–59 pts', color: P.lt,    features:['Cool roof','Bioswale','Fritted glass','Rainwater cistern','Native meadow'] },
-  { id:'gold',      t:'Gold',     d:'60–79 pts', color: P.green, features:['Green roof (sedum)','Bioswale','Fritted glass','Rooftop PV array','Dynamic louvers','EV charging stations'] },
-  { id:'platinum',  t:'Platinum', d:'80+ pts',   color: P.navy,  features:['Extensive green roof','Constructed wetland','BIPV','Kinetic shading facade','Double-skin facade'] },
+  { id:null,        t:'No LEED',  d:'Skip' },
+  { id:'certified', t:'Certified',d:'40–49 pts', color: P.pale,  features:['Green roof (sedum)','Bioswale','Permeable pavers'] },
+  { id:'silver',    t:'Silver',   d:'50–59 pts', color: P.lt,    features:['Green roof (sedum)','Bioswale','Permeable pavers','Solar bollard lights','Native meadow'] },
+  { id:'gold',      t:'Gold',     d:'60–79 pts', color: P.green, features:['Green roof (sedum)','Bioswale','Permeable pavers','Rooftop PV array','Native meadow','EV charging stations','Living wall','Rainwater cistern'] },
+  { id:'platinum',  t:'Platinum', d:'80+ pts',   color: P.navy,  features:['Green roof (sedum)','Bioswale','Permeable pavers','Rooftop PV array','BIPV','Native meadow','EV charging stations','Living wall','Rainwater cistern','Pollinator corridor','Constructed wetland','Cool roof'] },
 ];
 
+const FIRM_COLORS = [P.navy, P.teal, P.green, P.lt, P.pale, P.navy, P.teal, P.green, P.lt, P.pale, P.navy, P.teal];
 const FIRMS = [
-  { id:'fluid_param', n:'Fluid Parametric',        ref:'Zaha Hadid',            d:'Continuous differentiation.',                kw:'sinuous curves, parametricism' },
-  { id:'diagrammatic',n:'Cross-Programmed',        ref:'OMA / Koolhaas',        d:'Bigness and structural diagrams.',           kw:'polycarbonate, raw steel, cantilever' },
-  { id:'engineered',  n:'Engineered Rationalism',  ref:'SOM',                   d:'Structural performance as form.',            kw:'bundled tube, exposed diagrid, sleek glass' },
-  { id:'monolithic',  n:'Monolithic Phenom.',      ref:'Zumthor / Ando',        d:'Material truth and chiaroscuro.',            kw:'board-formed concrete, atmospheric light' },
-  { id:'particulate', n:'Particulate Tectonics',   ref:'Kengo Kuma',            d:'Dissolution of mass via small elements.',    kw:'timber lattice, ceramic louvers, immaterial' },
-  { id:'topo',        n:'Topographical',           ref:'Snøhetta',              d:'Building as continuous landscape.',          kw:'accessible roof, ground plane extension' },
-  { id:'folded',      n:'Folded Tectonics',        ref:'Morphosis / FOA',       d:'Continuous topological surfaces.',           kw:'folded plate, angular faceted geometry' },
-  { id:'pixel',       n:'Data-Driven Density',     ref:'MVRDV',                 d:'Programmatic extrusion and pixelation.',     kw:'pixelated massing, extreme cantilevers' },
-  { id:'pragmatic',   n:'Pragmatic Utopian',       ref:'BIG',                   d:'Hedonistic sustainability, super-forms.',    kw:'stepped terraces, twisted courtyard' },
-  { id:'craft',       n:'Digital Craft',           ref:'SHoP Architects',       d:'Parametric masonry and facade textures.',    kw:'parametric brick, copper patina, terracotta' },
-  { id:'dynamic',     n:'Dynamic Topology',        ref:'UNStudio',              d:'Moebius loops and deep spatial sequences.',  kw:'continuous loop, double-curved surface' },
-  { id:'hightech',    n:'Structural Expression',   ref:'Foster / Rogers',       d:'Exposed servicing and tensile structures.',  kw:'bow-string truss, exposed MEP, tension rods' },
-];
-
-const SECTION_TYPES = [
-  { id:'atrium',    t:'Central Atrium',   d:'Full-height void connecting all levels.',     kw:'triple-height atrium, skylit void' },
-  { id:'mezzanine', t:'Mezzanine Shift',  d:'Partial floor overlooking a double-height space.', kw:'mezzanine overlook, balcony' },
-  { id:'sunken',    t:'Sunken Pit',       d:'Lowered floor area for intimate gathering.',  kw:'sunken seating area, floor level shift' },
-  { id:'stepped',   t:'Stepped Plinth',   d:'Terraced interior floor levels.',             kw:'stepped seating, cascading levels' },
-  { id:'carved',    t:'Carved Void',      d:'Subtractive spatial logic; monolithic holes.', kw:'subtractive volume, carved niches' },
-  { id:'loft',      t:'Open Loft',        d:'High ceilings with exposed structural depth.', kw:'high-clearance industrial loft' },
+  { id:'fluid_param', n:'Fluid Parametric',        ref:'Zaha Hadid Architects', d:'Seamless transitions. Everything flows.',    kw:'sinuous curves, shell structures' },
+  { id:'pragmatic',   n:'Pragmatic Utopian',        ref:'BIG (Bjarke Ingels)',   d:'Super-forms. Green terraces.',              kw:'stacked volumes, cascading terraces' },
+  { id:'hightech',    n:'High-Tech Structuralism',  ref:'Foster + Partners',     d:'Beauty in the skeleton.',                   kw:'diagrid, precision steel' },
+  { id:'diag_urban',  n:'Diagrammatic Urbanism',    ref:'OMA / Koolhaas',        d:'Cross-programmed massing. Raw critique.',   kw:'cantilevered volume, polycarbonate, raw' },
+  { id:'pixel',       n:'Pixelated Density',        ref:'MVRDV',                 d:'Colorful data points.',                     kw:'pixelated facade, glass bricks' },
+  { id:'eng_rat',     n:'Engineered Rationalism',   ref:'SOM',                   d:'Structural performance as aesthetic.',      kw:'bundled tube, curtain wall, exposed structure' },
+  { id:'monolithic',  n:'Monolithic Phenom.',       ref:'Zumthor / Ando',        d:'Silence. Material truth.',                  kw:'board-formed concrete, chiaroscuro' },
+  { id:'topo',        n:'Topographical',            ref:'Snøhetta',              d:'Building as ground plane.',                 kw:'walkable roof, landscape extension' },
+  { id:'anti_obj',    n:'Particulate Tectonics',    ref:'Kengo Kuma',            d:'Dissolution of mass via small elements.',   kw:'timber lattice, ceramic louvers' },
+  { id:'craft',       n:'Material Craft',           ref:'SHoP Architects',       d:'Digital fab, textured skins.',              kw:'Corten, parametric copper, terracotta' },
+  { id:'folded',      n:'Folded Tectonics',         ref:'Morphosis / FOA',       d:'Angular geological fracture.',              kw:'folded plate, continuous surface, scored concrete' },
+  { id:'dynamic',     n:'Dynamic Loops',            ref:'UNStudio',              d:'Twists, continuous circulation.',           kw:'Moebius strip, metallic, rhythmic' },
 ];
 
 // ── GUIDANCE ────────────────────────────────────────────────
@@ -109,7 +102,7 @@ const GUIDE = {
 // ── DEFAULTS ────────────────────────────────────────────────
 const DEFS = {
   'Library':{ style:['Haptic Materiality'], ext_mat:['Brick masonry','Cedar slats','Fritted glass'], int_mat:['White oak plank','Cork tile','Acoustic timber slats','Limewash plaster'], weather:'soft spring morning with light mist', lt_t:'warm 3000K', en_cr:'few people (3-5)', ceil:'4m generous', furniture:['Reading nook (oak)','Communal table','Bookshelf wall','Pendant reading lamp'], color:['Warm earth tones'] },
-  'Museum':{ style:['Monolithic Phenomenological'], ext_mat:['Board-formed concrete','Honed travertine','Copper panels (patina)'], int_mat:['Polished concrete','Honed granite','Cloud ceiling'], weather:'overcast with soft diffuse light', lt_t:'neutral 4000K', en_cr:'few people (3-5)', ceil:'6m double-height', furniture:['Museum bench','Display vitrine','Track lighting'], color:['True-color materials'] },
+  'Museum':{ style:['Stoic Monolithic Form'], ext_mat:['Board-formed concrete','Honed travertine','Copper panels (patina)'], int_mat:['Polished concrete','Honed granite','Cloud ceiling'], weather:'overcast with soft diffuse light', lt_t:'neutral 4000K', en_cr:'few people (3-5)', ceil:'6m double-height', furniture:['Museum bench','Display vitrine','Track lighting'], color:['True-color materials'] },
   'Office Tower':{ style:['Corporate Rationalism'], ext_mat:['Unitized curtain wall','Polished limestone base'], int_mat:['Raised access floor','CLT panels','Acoustic timber slats'], weather:'bright mid-summer harsh sun', lt_t:'neutral 4000K', en_cr:'moderate groups', ceil:'3m standard', furniture:['Sit-stand desk','Desk chairs','Whiteboard wall'], color:['True-color materials'] },
   'Bar / Nightclub':{ style:['Industrial Minimalism'], int_mat:['Exposed brick','Back-painted glass','End-grain timber'], weather:'summer night with light trails', lt_t:'amber 2200K', en_cr:'busy crowd', ceil:'4m generous', furniture:['Bar stools','Banquette','Neon sign'], color:['Dark moody'] },
   'Single-Family House':{ style:['Critical Regionalism'], ext_mat:['Brick masonry','Cedar slats','Standing seam metal roof'], int_mat:['White oak plank','Limewash plaster'], weather:'golden hour with long shadows', lt_t:'warm 3000K', en_cr:'single figure', ceil:'3m standard', furniture:['Mid-century sofa','Fireplace','Floor lamp'], color:['Warm earth tones'] },
@@ -119,13 +112,14 @@ const DEFS = {
   'Villa / Estate':{ style:['Haptic Materiality'], ext_mat:['Honed travertine','Cedar slats','Low-iron glass'], int_mat:['White oak plank','Marble mosaic','Venetian plaster'], weather:'golden hour', lt_t:'warm 3000K', en_cr:'single figure', ceil:'4m generous', furniture:['Lounge chairs','Fireplace','Feature pendant'], color:['Timber + brass'] },
   'Data Center':{ style:['Industrial Minimalism'], ext_mat:['Insulated metal panels','Polycarbonate'], int_mat:['Raised access floor','Exposed MEP plenum'], weather:'overcast', lt_t:'cool 6500K', en_cr:'single figure', ceil:'4m generous', color:['Cool stone + glass'] },
 };
-const DEF_FB = { style:['Contemporary'], ext_mat:['Unitized curtain wall','Board-formed concrete'], int_mat:['White oak plank','Polished concrete'], weather:'golden hour', lt_t:'warm 3000K', cam_h:'human eye-level', cam_d:'mid-range building view', en_cr:'few people (3-5)', ceil:'3m standard', section:'Open Loft', furniture:['Lounge chairs'], color:['True-color materials'] };
+const DEF_FB = { style:['Contemporary'], ext_mat:['Unitized curtain wall','Board-formed concrete'], int_mat:['White oak plank','Polished concrete'], weather:'golden hour', lt_t:'warm 3000K', cam_h:'human eye-level', cam_d:'mid-range building view', en_cr:'few people (3-5)', ceil:'3m standard', furniture:['Lounge chairs'], color:['True-color materials'] };
 
-// ── STATE & SCREEN CONTROL ──────────────────────────────────
+// ── STATE ────────────────────────────────────────────────────
 const S = { f:null, entryPath:null, type:null, matStyle:null, budget:null, ie:null, climate:null, leed:null, firm:null, step:0, sel:{} };
 function gv(id){ const v=S.sel[id]; if(!v)return null; if(v instanceof Set)return v.size>0?[...v].join(', '):null; return v||null; }
 function gs(id){ if(!S.sel[id])S.sel[id]=new Set(); return S.sel[id]; }
 
+// ── SCREEN CONTROL ───────────────────────────────────────────
 function show(id){
   document.querySelectorAll('.screen,.builder').forEach(e=>{ e.classList.remove('active'); e.style.display='none'; });
   const el = document.getElementById(id);
@@ -151,15 +145,27 @@ function initApp(){
   ).join('');
 }
 
-// ── PICKING LOGIC ────────────────────────────────────────────
+// ── FORMULA PICK ─────────────────────────────────────────────
 function pickF(id){
   S.f = id;
   if(id === 'to_tech'){
-    S.type    = 'Render'; S.ie = 'exterior'; S.climate = null; S.leed = null; S.firm = null;
-    S.sel = {}; S.step = 0; applyAllDefaults(); show('bld'); render();
-  } else { show('s_entry'); }
+    // Render→Drawing: skip wizard, go directly to builder
+    S.type    = 'Render';
+    S.ie      = 'exterior';
+    S.climate = null;
+    S.leed    = null;
+    S.firm    = null;
+    S.sel     = {};
+    S.step    = 0;
+    applyAllDefaults();
+    show('bld');
+    render();
+  } else {
+    show('s_entry');
+  }
 }
 
+// ── ENTRY PATH ───────────────────────────────────────────────
 function pickEntry(path){
   S.entryPath = path;
   if(path === 'program'){
@@ -169,152 +175,291 @@ function pickEntry(path){
           <span style="display:flex;align-items:center;gap:8px">
             <span style="width:10px;height:10px;border-radius:2px;background:${c.color};display:inline-block;flex-shrink:0"></span>
             ${c.c}
-          </span><span class="arrow">▶</span>
+          </span>
+          <span class="arrow">▶</span>
         </div>
-        <div class="typ-cat-body">${c.i.map(t=>`<div class="typ-item" onclick="pickType('${t.replace(/'/g,"\\'")}');event.stopPropagation()">${t}</div>`).join('')}</div>
+        <div class="typ-cat-body">
+          ${c.i.map(t=>`<div class="typ-item" onclick="pickType('${t.replace(/'/g,"\\'")}');event.stopPropagation()">${t}</div>`).join('')}
+        </div>
       </div>`
     ).join('');
     show('s_type');
   } else if(path === 'aesthetic'){
     document.getElementById('matStyleGrid').innerHTML = MAT_STYLES.map(m =>
       `<div class="mat-style-c" onclick="pickMatStyle('${m.id}')">
-        <div class="mat-style-body"><div class="ms-t">${m.t}</div><div class="ms-d">${m.d}</div><div class="ms-k mono">${m.k}</div></div>
+        <div class="ms-swatch" style="background:${m.color}"></div>
+        <div class="mat-style-body">
+          <div class="ms-t">${m.t}</div>
+          <div class="ms-d">${m.d}</div>
+          <div class="ms-k mono">${m.k}</div>
+        </div>
       </div>`
     ).join('');
     show('s_matstyle');
-  } else { S.type='Custom'; goToBudget(); }
+  } else {
+    // Skip → go directly to budget
+    S.type='Custom'; S.matStyle=null;
+    goToBudget();
+  }
 }
 
-function pickType(t){ S.type=t; goToBudget(); }
+function pickType(t){ S.type=t; S.matStyle=null; goToBudget(); }
 function pickMatStyle(id){ S.matStyle=id; S.type=MAT_STYLES.find(m=>m.id===id)?.t||'Custom'; goToBudget(); }
-function goToBudget(){ show('s_budget'); renderBudgets(); }
-function goBackFromBudget(){ if(S.entryPath==='aesthetic') show('s_matstyle'); else if(S.entryPath==='skip') show('s_entry'); else show('s_type'); }
 
-function renderBudgets(){
-  const budgets = [{id:'standard',t:'Standard',d:'Cost-effective.',c:P.lt},{id:'mid',t:'Mid-Range',d:'Quality.',c:P.teal},{id:'high',t:'High-End',d:'Premium.',c:P.navy}];
-  document.getElementById('bCards').innerHTML = budgets.map(b => `<div class="card" onclick="pickBudget('${b.id}')"><div class="card-body"><div class="ct">${b.t}</div><div class="cd">${b.d}</div></div></div>`).join('');
+function goBackFromBudget(){
+  if(S.entryPath==='aesthetic') show('s_matstyle');
+  else if(S.entryPath==='skip') show('s_entry');
+  else show('s_type');
 }
 
-function pickBudget(id){ S.budget = id; if(S.f==='inpaint'||S.f==='to_tech'){ S.ie='exterior'; goToClimate(); return; } show('s_ie'); renderIE(); }
-function renderIE(){
-  document.getElementById('ieCards').innerHTML = `<div class="card" onclick="pickIE('exterior')"><div class="card-body"><div class="ct">Exterior</div><div class="cd">Outside view.</div></div></div><div class="card" onclick="pickIE('interior')"><div class="card-body"><div class="ct">Interior</div><div class="cd">Inside view.</div></div></div>`;
+function goToBudget(){
+  const budgetDefs = [
+    { id:'standard', t:'Standard',  d:'Cost-effective construction.',  color: P.lt   },
+    { id:'mid',      t:'Mid-Range', d:'Quality materials, no excess.',  color: P.teal },
+    { id:'high',     t:'High-End',  d:'Premium detailing throughout.',  color: P.navy },
+  ];
+  document.getElementById('bCards').innerHTML = budgetDefs.map(b =>
+    `<div class="card" onclick="pickBudget('${b.id}')">
+      <div class="card-swatch" style="background:${b.color}"></div>
+      <div class="card-body">
+        <div class="ct">${b.t}</div>
+        <div class="cd">${b.d}</div>
+      </div>
+    </div>`
+  ).join('');
+  show('s_budget');
+}
+
+function pickBudget(id){
+  S.budget = id;
+  if(S.f==='inpaint'||S.f==='to_tech'){ S.ie='exterior'; goToClimate(); return; }
+  document.getElementById('ieCards').innerHTML =
+    `<div class="card" onclick="pickIE('exterior')">
+      <div class="card-swatch" style="background:${P.teal}"></div>
+      <div class="card-body">
+        <div class="cn mono">EXTERIOR</div>
+        <div class="ct">Outside</div>
+        <div class="cd">Facade, site, landscape, weather.</div>
+      </div>
+    </div>
+    <div class="card" onclick="pickIE('interior')">
+      <div class="card-swatch" style="background:${P.green}"></div>
+      <div class="card-body">
+        <div class="cn mono">INTERIOR</div>
+        <div class="ct">Inside</div>
+        <div class="cd">Surfaces, furniture, scale, lighting.</div>
+      </div>
+    </div>`;
+  show('s_ie');
 }
 
 function pickIE(ie){ S.ie=ie; goToClimate(); }
+
 function goToClimate(){
-  document.getElementById('climateGrid').innerHTML = CLIMATES.map(c => `<div class="climate-c" onclick="pickClimate('${c.id}')"><div class="climate-body"><div class="cc-t">${c.t}</div><div class="cc-d">${c.d}</div></div></div>`).join('');
+  document.getElementById('climateGrid').innerHTML = CLIMATES.map(c =>
+    `<div class="climate-c" onclick="pickClimate('${c.id}')">
+      <div class="clim-swatch" style="background:${c.color}"></div>
+      <div class="climate-body">
+        <div class="cc-t">${c.t}</div>
+        <div class="cc-d">${c.d}</div>
+      </div>
+    </div>`
+  ).join('');
   show('s_climate');
 }
 
 function pickClimate(id){
   S.climate = id;
-  document.getElementById('leedGrid').innerHTML = LEED_LEVELS.map(l => `<div class="leed-c ${l.id===null?'skip-card':''}" onclick="pickLeed(${l.id ? `'${l.id}'` : null})"><div class="leed-body"><div class="lc-t">${l.t}</div><div class="lc-d">${l.d}</div></div></div>`).join('');
+  document.getElementById('leedGrid').innerHTML = LEED_LEVELS.filter(l=>l.id).map(l =>
+    `<div class="leed-c" onclick="pickLeed('${l.id}')">
+      <div class="lc-swatch" style="background:${l.color}"></div>
+      <div class="leed-body">
+        <div class="lc-t">${l.t}</div>
+        <div class="lc-d">${l.d}</div>
+      </div>
+    </div>`
+  ).join('');
   show('s_leed');
 }
 
 function pickLeed(id){
   S.leed = id;
-  document.getElementById('firmGrid').innerHTML = FIRMS.map((f,i) => `<div class="firm-c" onclick="pickFirm('${f.id}')"><div class="firm-body"><div class="fn">${f.n}</div><div class="fr">${f.ref}</div><div class="fd">${f.d}</div><div class="fk mono">${f.kw}</div></div></div>`).join('');
+  document.getElementById('firmGrid').innerHTML = FIRMS.map((f,i) =>
+    `<div class="firm-c" onclick="pickFirm('${f.id}')">
+      <div class="fc-swatch" style="background:${FIRM_COLORS[i]}"></div>
+      <div class="firm-body">
+        <div class="fn">${f.n}</div>
+        <div class="fr">${f.ref}</div>
+        <div class="fd">${f.d}</div>
+        <div class="fk mono">${f.kw}</div>
+      </div>
+    </div>`
+  ).join('');
   show('s_firm');
 }
 
-function pickFirm(id){ S.firm=id; S.sel={}; S.step=0; applyAllDefaults(); show('bld'); render(); }
+function pickFirm(id){
+  S.firm=id; S.sel={}; S.step=0;
+  applyAllDefaults();
+  show('bld'); render();
+}
+
 function resetDef(){ S.sel={}; applyAllDefaults(); render(); }
 
-// ── DEFAULT APPLICATION ──────────────────────────────────────
+// ── DEFAULTS APPLICATION ──────────────────────────────────────
 function applyAllDefaults(){
   const isI = S.ie === 'interior';
-  let d = (S.entryPath==='aesthetic' && S.matStyle) ? MAT_STYLES.find(m=>m.id===S.matStyle).defaults : (DEFS[S.type] || DEF_FB);
+  let d;
+  if(S.entryPath==='aesthetic' && S.matStyle){
+    const ms = MAT_STYLES.find(m=>m.id===S.matStyle);
+    d = ms ? ms.defaults : DEF_FB;
+  } else {
+    d = DEFS[S.type] || DEF_FB;
+  }
   const fb = DEF_FB;
 
+  // Role
   const roles = { creation:'Act as an expert architectural visualizer and generate', sketch:'RENDER the provided sketch, locking geometry', rigid:'Render the provided technical input, locking geometry', inpaint:'Preserve exact composition, isolate target', to_tech:'Convert the provided image into a technical architectural drawing' };
   S.sel.role = roles[S.f];
+
+  // Medium
   S.sel.med_cat = 'photorealistic';
-  S.sel.med = '4K architectural photography';
+  S.sel.med     = '4K architectural photography';
+
+  // Style
   S.sel.style = new Set(d.style || fb.style);
+
+  // Camera
   S.sel.cam_h = d.cam_h || fb.cam_h;
   S.sel.cam_d = d.cam_d || fb.cam_d;
 
-  if(isI) {
-    S.sel.int_mat = new Set(d.int_mat || fb.int_mat);
-    S.sel.section = d.section || fb.section;
-    S.sel.ceil = d.ceil || fb.ceil;
-    S.sel.furniture = new Set(d.furniture || fb.furniture);
-    S.sel.color = new Set(d.color || fb.color || []);
-  } else {
-    S.sel.ext_mat = new Set(d.ext_mat || fb.ext_mat);
-  }
+  // Materials
+  if(isI) S.sel.int_mat = new Set(d.int_mat || fb.int_mat);
+  else    S.sel.ext_mat = new Set(d.ext_mat || fb.ext_mat);
 
+  // Climate-based weather
   const clim = CLIMATES.find(c=>c.id===S.climate);
   S.sel.weather = clim?.weather || d.weather || fb.weather;
+
+  // Vegetation
   if(!isI && clim?.veg) S.sel.si_ls = new Set(clim.veg);
 
+  // Lighting
   S.sel.lt_t = d.lt_t || fb.lt_t;
+
+  // Entourage
   S.sel.en_cr = d.en_cr || fb.en_cr;
   S.sel.en_fx = 'slight motion blur';
 
-  if(S.f==='creation' && !isI){ S.sel.sc_st='4-6 stories'; S.sel.sc_fp='mid-block'; }
-  if(!isI){ S.sel.si_den='urban mid-rise'; S.sel.si_tp='flat'; }
-  if(S.leed && !isI){ const lDef = LEED_LEVELS.find(l=>l.id===S.leed); if(lDef?.features) S.sel.sustain = new Set(lDef.features); }
+  // Interior
+  if(isI){
+    S.sel.ceil      = d.ceil      || fb.ceil;
+    S.sel.furniture = new Set(d.furniture || fb.furniture);
+    S.sel.color     = new Set(d.color || fb.color || []);
+  }
 
+  // Scale
+  if(S.f==='creation' && !isI){ S.sel.sc_st='4-6 stories'; S.sel.sc_fp='mid-block'; }
+
+  // Site
+  if(!isI){ S.sel.si_den='urban mid-rise'; S.sel.si_tp='flat'; }
+
+  // LEED features
+  if(S.leed && !isI){
+    const leedDef = LEED_LEVELS.find(l=>l.id===S.leed);
+    if(leedDef?.features) S.sel.sustain = new Set(leedDef.features);
+  }
+
+  // Negatives
   S.sel.negative = new Set(['Maintain verticals','No text or watermarks','No blurry foreground',"Don't crop building",'No distorted faces','No visual clutter']);
 
+  // Tech drawing defaults
+  if(S.f==='to_tech'){ S.sel.tech_type='front elevation'; S.sel.tech_style='crisp black lines on white background'; S.sel.role='Convert the provided image into a technical architectural drawing'; }
+
+  // Firm overrides
   if(S.firm){
     const presets = {
-      fluid_param:  { style:['Fluid Parametric'], ext_mat:['Fiber-reinforced polymer','Seamless Corian','Curved glass'] },
-      diagrammatic: { style:['Cross-Programmed Urbanism'], ext_mat:['Polycarbonate','Corten steel','Exposed steel columns'] },
-      engineered:   { style:['Engineered Rationalism'], ext_mat:['Unitized curtain wall','Polished limestone','Stainless mullions'] },
-      monolithic:   { style:['Monolithic Phenomenological'], ext_mat:['Board-formed concrete','Honed travertine'] },
-      particulate:  { style:['Particulate Tectonics'], ext_mat:['Timber lattice','Ceramic louvers','Ultraclear glass'] },
-      topo:         { style:['Topographical Integration'], ext_mat:['Cedar slats','Green roof (sedum)','Low-iron glass'] },
-      folded:       { style:['Folded Tectonics'], ext_mat:['Corten steel','Board-formed concrete'] },
-      pixel:        { style:['Pixelated Density'], ext_mat:['Colorful glazed panels','Glass bricks','Perforated metal'] },
-      pragmatic:    { style:['Pragmatic Utopian'], ext_mat:['Cedar slats','Low-iron glass','Green roof (sedum)'] },
-      craft:        { style:['Material Craftsmanship'], ext_mat:['Corten steel','Copper shingles','Parametric brick'] },
-      dynamic:      { style:['Dynamic Loops'], ext_mat:['Brushed aluminum','Bronze-tinted glass'] },
-      hightech:     { style:['High-Tech Structuralism'], ext_mat:['Unitized curtain wall','Brushed aluminum','Exposed diagrid'] },
+      fluid_param:{ style:['Fluid Parametric'],             ext_mat:['Fiber-reinforced polymer','Seamless Corian','Curved glass'] },
+      pragmatic:  { style:['Pragmatic Utopian'],            ext_mat:['Cedar slats','Low-iron glass','Green roof (sedum)'] },
+      hightech:   { style:['High-Tech Structuralism'],      ext_mat:['Unitized curtain wall','Brushed aluminum','Exposed diagrid'] },
+      diag_urban: { style:['Diagrammatic Programmatic'],    ext_mat:['Board-formed concrete','Polycarbonate','Corten steel'] },
+      pixel:      { style:['Pixelated Density'],            ext_mat:['Colorful glazed panels','Glass bricks','Perforated metal'] },
+      eng_rat:    { style:['Engineered Rationalism'],       ext_mat:['Unitized curtain wall','Polished limestone','Stainless mullions'] },
+      monolithic: { style:['Monolithic Phenomenological'],  ext_mat:['Board-formed concrete','Honed travertine'] },
+      topo:       { style:['Topographical Integration'],    ext_mat:['Cedar slats','Green roof (sedum)','Low-iron glass'] },
+      anti_obj:   { style:['Particulate Tectonics'],        ext_mat:['Timber shingle','Vertical battens','Cedar slats'] },
+      craft:      { style:['Material Craftsmanship'],       ext_mat:['Corten steel','Copper shingles','Timber fins'] },
+      folded:     { style:['Folded Tectonics'],             ext_mat:['Corten steel','Board-formed concrete'] },
+      dynamic:    { style:['Dynamic Loops'],                ext_mat:['Brushed aluminum','Bronze-tinted glass'] },
     };
     const p = presets[S.firm];
-    if(p){ if(p.style) S.sel.style = new Set(p.style); if(!isI && p.ext_mat) S.sel.ext_mat = new Set(p.ext_mat); }
+    if(p){
+      if(p.style) S.sel.style = new Set(p.style);
+      if(!isI && p.ext_mat) S.sel.ext_mat = new Set(p.ext_mat);
+    }
   }
 }
 
-// ── CONFLICT ENGINE ──────────────────────────────────────────
-function checkConflicts() {
-  const w = []; const extMat = gs('ext_mat'); const cli = S.climate; const bud = S.budget; const wea = S.sel.weather || '';
-  if (cli === 'hot_dry' && extMat.has('Unitized curtain wall') && !extMat.has('Brise-soleil') && !extMat.has('Fritted glass')) {
-    w.push({ t: "Thermal Load Conflict", d: "Unprotected curtain walls in Hot & Dry climate is a thermal failure. AI will render glared glass." });
-  }
-  if (bud === 'standard' && (gs('style').has('Fluid Parametric') || gs('style').has('High-Tech Structuralism'))) {
-    w.push({ t: "Fabrication Mismatch", d: "Parametric/High-Tech require bespoke CNC. Standard budget confuses AI results." });
-  }
-  if ((cli === 'tropical' || cli === 'hot_humid') && (wea.includes('snow') || wea.includes('frost'))) {
-    w.push({ t: "Geographic Contradiction", d: "Tropical climate with snow triggers AI hallucinations." });
-  }
-  if (gs('style').size > 1) { w.push({ t: "Prompt Dilution", d: "AI averages contradictory styles. Limit to ONE dominant style." }); }
-  return w;
-}
-
-// ── BUILDER CORE ─────────────────────────────────────────────
+// ════════════════════════════════════════════════════════════
+// BUILDER
+// ════════════════════════════════════════════════════════════
 function getSteps(){
   const isI=S.ie==='interior', isC=S.f==='creation', isTT=S.f==='to_tech';
-  const st = [{id:'role',t:'Role',d:'AI Persona.'},{id:'medium',t:'Medium & Style',d:'Output quality.'}];
-  if(isTT){ st.push({id:'tech_output',t:'Drawing Type',d:'Drawing choice.'},{id:'negative',t:'Constraints',d:'Rules.'}); return st; }
-  if(S.f!=='inpaint') st.push({id:'style',t:'Arch. Style',d:'Movement.'});
-  if(isI && S.f!=='inpaint') st.push({id:'section', t:'Sectional Logic', d:'Vertical organization.'});
-  if(isC) st.push({id:'camera',t:'Camera',d:'Framing.'});
-  st.push({id:isI?'int_mat':'ext_mat', t:isI?'Interior Materials':'Exterior Materials', d:'Surfaces.'});
-  if(isC&&!isI) st.push({id:'scale',t:'Building Scale',d:'Massing.'});
-  if(!isI&&S.leed) st.push({id:'sustain',t:'LEED Features',d:'Sustainability.'});
-  if(!isI&&S.f!=='inpaint') st.push({id:'site',t:'Site',d:'Context.'});
-  if(isI){ st.push({id:'furniture',t:'Furniture',d:'FF&E.'},{id:'int_scale',t:'Spatial Scale',d:'Volumes.'}); }
-  if(S.f!=='inpaint') st.push({id:'weather',t:'Weather',d:'Atmosphere.'});
-  st.push({id:'lighting',t:'Lighting',d:'Temperature.'});
-  if(S.f!=='inpaint') st.push({id:'entourage',t:'Entourage',d:'Life.'});
-  if(isI) st.push({id:'color',t:'Color Mood',d:'Palette.'});
-  st.push({id:'negative',t:'Constraints',d:'Rules.'});
+  const st=[];
+  st.push({id:'role',  t:'Role',        d:'Who the AI should be.'});
+  st.push({id:'medium',t:'Medium & Style',d:'Output type and quality.'});
+  if(isTT){
+    st.push({id:'tech_output',t:'Drawing Type',d:'What technical drawing to produce.'});
+    st.push({id:'negative',   t:'Constraints', d:'What NOT to do.'});
+    return st;
+  }
+  if(S.f!=='inpaint') st.push({id:'style',t:'Arch. Style',d:'Design language and movement.'});
+  if(isC)             st.push({id:'camera',t:'Camera',d:'Framing, lens, aspect.'});
+  st.push({id:isI?'int_mat':'ext_mat', t:isI?'Interior Materials':'Exterior Materials', d:'Surfaces, finishes, systems.'});
+  if(isC&&!isI)  st.push({id:'scale',t:'Building Scale',d:'Stories, footprint, massing.'});
+  if(!isI&&S.leed) st.push({id:'sustain',t:'LEED / Sustainable',d:'Green features visible in render.'});
+  if(!isI&&S.f!=='inpaint') st.push({id:'site',t:'Site & Landscape',d:'Context, density, vegetation.'});
+  if(isI){ st.push({id:'furniture',t:'Furniture',d:'FF&E for scale and life.'}); st.push({id:'int_scale',t:'Spatial Scale',d:'Height, features.'}); }
+  if(S.f!=='inpaint') st.push({id:'weather',t:'Weather',d:'Season, time, atmosphere.'});
+  st.push({id:'lighting',t:'Lighting',d:'Temperature, sources.'});
+  if(S.f!=='inpaint') st.push({id:'entourage',t:'Entourage',d:'People, vehicles, camera FX.'});
+  if(isI) st.push({id:'color',t:'Color Mood',d:'Overall palette.'});
+  st.push({id:'negative',t:'Constraints',d:'What NOT to do.'});
   return st;
 }
+
+function render(){
+  const clim = CLIMATES.find(c=>c.id===S.climate);
+  const ie   = document.getElementById('xIE');
+  const bud  = document.getElementById('xBud');
+  const cli  = document.getElementById('xClim');
+  const led  = document.getElementById('xLeed');
+  const inf  = document.getElementById('xInfo');
+  if(ie)  ie.textContent  = S.ie==='interior'?'INT':'EXT';
+  if(bud) bud.textContent = (S.budget||'').toUpperCase();
+  if(cli) cli.textContent = clim?.t||'';
+  if(led) led.textContent = S.leed ? 'LEED '+S.leed.toUpperCase() : '';
+  const fo = FIRMS.find(f=>f.id===S.firm);
+  if(inf) inf.innerHTML   = `<strong>${S.type||''}</strong>${fo?' · '+fo.n:''}`;
+
+  // hide empty tags
+  [ie,bud,cli,led].forEach(el=>{ if(el) el.style.display=el.textContent?'':'none'; });
+
+  const steps=getSteps(), nav=document.getElementById('snav');
+  let nh='<div class="snl mono">STEPS</div>';
+  steps.forEach((s,i)=>{
+    let c=0;
+    Object.keys(S.sel).forEach(k=>{
+      if(k===s.id||k.startsWith(s.id+'_')){ const v=S.sel[k]; if(v instanceof Set)c+=v.size; else if(v)c++; }
+    });
+    nh+=`<div class="si ${i===S.step?'act':''}" onclick="goS(${i})"><span class="sn mono">${i+1}</span><span>${s.t}</span><span class="ss mono ${c>0?'sok':'sno'}">${c>0?'✓'+c:'—'}</span></div>`;
+  });
+  nav.innerHTML=nh;
+  renderStep(); renderPrompt();
+}
+
+function goS(i){ S.step=i; render(); }
+function getG(sid){ return GUIDE[S.type]?.[sid] || GUIDE._default?.[sid] || null; }
 
 function renderStep(){
   const steps=getSteps(), step=steps[S.step], a=document.getElementById('ma');
@@ -329,47 +474,48 @@ function renderStep(){
     h+=`<div class="guide gs"><div class="gl mono">💬 Also consider</div><div class="gr">${g.r2.map(r=>`<span class="rt sec ${isROn(r)?'on':''}" onclick="rTog('${step.id}','${esc(r)}')">${isROn(r)?'✓ ':''}${r}</span>`).join('')}</div></div>`;
   }
 
-// LEED tracking (Point/Count-Based Level Up)
-      if(step.id==='sustain'&&S.leed){
-        const currIdx = LEED_LEVELS.findIndex(l=>l.id===S.leed);
-        const leedDef = LEED_LEVELS[currIdx];
-        const selected = gs('sustain');
-        const selCount = selected.size;
+  // LEED tracking (Point/Count-Based Level Up)
+  if(step.id==='sustain'&&S.leed){
+    const currIdx = LEED_LEVELS.findIndex(l=>l.id===S.leed);
+    const leedDef = LEED_LEVELS[currIdx];
+    const selected = gs('sustain');
+    const selCount = selected.size;
 
-        if(leedDef?.features){
-          const missing = leedDef.features.filter(f=>!selected.has(f));
-          
-          if(missing.length > 0){
-            // Warning: Missing core features for current target
-            h+=`<div class="guide gw"><div class="gl mono">⚠️ LEED ${leedDef.t.toUpperCase()} — Core feature missing</div><div class="gt">Add back to maintain target: <strong>${missing.join(', ')}</strong></div><div class="gr">${missing.map(f=>`<span class="rt pri" onclick="gs('sustain').add('${esc(f)}');render()">+ Add ${f}</span>`).join('')}</div></div>`;
-          } else {
-            // Target met. Check total volume for upgrade
-            let suggestedLevel = leedDef;
-            let nextLevelHint = '';
+    if(leedDef?.features){
+      const missing = leedDef.features.filter(f=>!selected.has(f));
+      
+      if(missing.length > 0){
+        // Warning: Missing core features for current target
+        h+=`<div class="guide gw"><div class="gl mono">⚠️ LEED ${leedDef.t.toUpperCase()} — Core feature missing</div><div class="gt">Add back to maintain target: <strong>${missing.join(', ')}</strong></div><div class="gr">${missing.map(f=>`<span class="rt pri" onclick="gs('sustain').add('${esc(f)}');render()">+ Add ${f}</span>`).join('')}</div></div>`;
+      } else {
+        // Target met. Check total volume for upgrade
+        let suggestedLevel = leedDef;
+        let nextLevelHint = '';
 
-            // Define thresholds
-            if (selCount >= 12 && currIdx < 4) suggestedLevel = LEED_LEVELS.find(l=>l.id==='platinum');
-            else if (selCount >= 8 && currIdx < 3) suggestedLevel = LEED_LEVELS.find(l=>l.id==='gold');
-            else if (selCount >= 5 && currIdx < 2) suggestedLevel = LEED_LEVELS.find(l=>l.id==='silver');
+        // Define thresholds
+        if (selCount >= 12 && currIdx < 4) suggestedLevel = LEED_LEVELS.find(l=>l.id==='platinum');
+        else if (selCount >= 8 && currIdx < 3) suggestedLevel = LEED_LEVELS.find(l=>l.id==='gold');
+        else if (selCount >= 5 && currIdx < 2) suggestedLevel = LEED_LEVELS.find(l=>l.id==='silver');
 
-            if(suggestedLevel.id !== leedDef.id){
-              // Upgrade available based on total tag count
-              h+=`<div class="guide gi" style="background:var(--leedd);border-color:var(--leedb)"><div class="gl mono" style="color:var(--leed)">🌱 UPGRADE AVAILABLE</div><div class="gt">With ${selCount} sustainable features, you qualify for <strong>LEED ${suggestedLevel.t.toUpperCase()}</strong>.</div><div class="gr"><span class="rt pri" onclick="S.leed='${suggestedLevel.id}';render()">Upgrade Target to ${suggestedLevel.t}</span></div></div>`;
-            } else {
-              // Calculate how many more tags needed for the next tier
-              const nextLevel = LEED_LEVELS[currIdx + 1];
-              if (nextLevel) {
-                const threshold = currIdx === 1 ? 5 : (currIdx === 2 ? 8 : 12);
-                const needed = threshold - selCount;
-                if (needed <= 2 && needed > 0) {
-                  nextLevelHint = `Add <strong>${needed}</strong> more sustainable feature${needed>1?'s':''} to reach ${nextLevel.t}.`;
-                }
-              }
-              h+=`<div class="guide gi"><div class="gl mono">✓ LEED ${leedDef.t.toUpperCase()} features complete</div>${nextLevelHint?`<div class="gt" style="margin-top:4px">${nextLevelHint}</div>`:''}</div>`;
+        if(suggestedLevel.id !== leedDef.id){
+          // Upgrade available based on total tag count
+          h+=`<div class="guide gi" style="background:var(--leedd);border-color:var(--leedb)"><div class="gl mono" style="color:var(--leed)">🌱 UPGRADE AVAILABLE</div><div class="gt">With ${selCount} sustainable features, you qualify for <strong>LEED ${suggestedLevel.t.toUpperCase()}</strong>.</div><div class="gr"><span class="rt pri" onclick="S.leed='${suggestedLevel.id}';render()">Upgrade Target to ${suggestedLevel.t}</span></div></div>`;
+        } else {
+          // Calculate how many more tags needed for the next tier
+          const nextLevel = LEED_LEVELS[currIdx + 1];
+          if (nextLevel) {
+            const threshold = currIdx === 1 ? 5 : (currIdx === 2 ? 8 : 12);
+            const needed = threshold - selCount;
+            if (needed <= 2 && needed > 0) {
+              nextLevelHint = `Add <strong>${needed}</strong> more sustainable feature${needed>1?'s':''} to reach ${nextLevel.t}.`;
             }
           }
+          h+=`<div class="guide gi"><div class="gl mono">✓ LEED ${leedDef.t.toUpperCase()} features complete</div>${nextLevelHint?`<div class="gt" style="margin-top:4px">${nextLevelHint}</div>`:''}</div>`;
         }
       }
+    }
+  }
+
   const sid=step.id;
   if(sid==='role')           h+=rRole();
   else if(sid==='medium')    h+=rMedium();
@@ -395,54 +541,372 @@ function renderStep(){
   a.innerHTML=h; a.scrollTop=0;
   document.querySelector('.db')?.classList.add('open');
 }
+
 // ── STEP RENDERERS ───────────────────────────────────────────
-function rRole(){ const tags={creation:['Act as an expert architectural visualizer and generate','Produce a production-grade 3D render of'],to_tech:['Convert image into technical architectural drawing']}; return '<div class="hier-items">'+(tags[S.f]||['Architectural Rendering']).map(t=>`<span class="tag ${S.sel.role===t?'on':'dim'}" onclick="S.sel.role='${esc(t)}';render()">${t}</span>`).join('')+'</div>'; }
-function rMedium(){ let h='<div class="hier-l">Category</div>'; h+=mkSpec('med_cat',[{v:'photorealistic',t:'Photo',d:''},{v:'linework',t:'Linework',d:''}]); return h; }
-function rSection(){ let h='<div class="hier-l">Volumetric Archetype</div>'; h+=mkSpec('section',SECTION_TYPES.map(s=>({v:s.t,t:s.t,d:s.d}))); h+='<div class="hier-l">Features</div>'; const ft=['Atrium void','Sky-bridge','Light-well']; h+='<div class="hier-items">'+ft.map(t=>`<span class="tag ${gs('sp_ft').has(t)?'on':'dim'}" onclick="tagTog('sp_ft','${esc(t)}')">${t}</span>`).join('')+'</div>'; return h; }
-function rStyle(){ const cats=[{c:'Monolithic',t:['Monolithic Phenomenological','Contemporary Brutalism']},{c:'High-Tech',t:['Engineered Rationalism','High-Tech Structuralism']},{c:'DNA',t:['Cross-Programmed Urbanism','Pragmatic Utopian']}]; let h=''; cats.forEach(ca=>h+=`<div class="dsl">${ca.c}</div><div class="dtags">${ca.t.map(t=>`<span class="tag ${gs('style').has(t)?'on':'dim'}" onclick="stylePick('${esc(t)}')">${t}</span>`).join('')}</div>`); return h; }
-function stylePick(v){ const s=gs('style'); if(s.has(v)) s.delete(v); else { s.clear(); s.add(v); } render(); }
-function rCamera(){ let h='<div class="hier-l">Height</div>'; h+=mkSpec('cam_h',[{v:'eye-level',t:'Eye Level',d:''},{v:'drone',t:'Drone',d:''}]); return h; }
-function rDrill(sid,data){ let h=''; data.forEach(sec=>{ h+=`<div class="dsec"><div class="dh" onclick="togD(this)">${sec.t}</div><div class="db">`; sec.subs.forEach(sub=>h+=`<div class="dtags">${sub.tags.map(t=>`<span class="tag ${gs(sid).has(t)?'on':'dim'}" onclick="tagTog('${sid}','${esc(t)}')">${t}</span>`).join('')}</div>`); h+=`</div></div>`; }); return h; }
-function rScale(){ return mkSpec('sc_st',[{v:'1-story',t:'1',d:''},{v:'4-6',t:'Mid',d:''},{v:'20+',t:'High',d:''}]); }
-function rSite(){ const lt=['Deciduous trees','Bioswale','Stone paving']; return '<div class="hier-items">'+lt.map(t=>`<span class="tag ${gs('si_ls').has(t)?'on':'dim'}" onclick="tagTog('si_ls','${esc(t)}')">${t}</span>`).join('')+'</div>'; }
-function rIntScale(){ return mkSpec('ceil',[{v:'3m',t:'3m',d:''},{v:'6m',t:'6m',d:''},{v:'9m+',t:'9m+',d:''}]); }
-function rWeather(){ return mkSpec('weather',[{v:'golden hour long shadows',t:'Golden Hour',d:''},{v:'overcast soft diffuse',t:'Overcast',d:''}]); }
-function rLight(){ return mkSpec('lt_t',[{v:'neutral 4000K',t:'4000K',d:''},{v:'warm 3000K',t:'3000K',d:''}]); }
-function rEnt(){ return mkSpec('en_cr',[{v:'single figure',t:'1',d:''},{v:'few (3-5)',t:'Few',d:''}]); }
-function rColor(){ return '<div class="dtags">'+['True-color materials','Warm earth tones','Cool stone + glass'].map(t=>`<span class="tag ${gs('color').has(t)?'on':'dim'}" onclick="tagTog('color','${esc(t)}')">${t}</span>`).join('')+'</div>'; }
-function rNeg(){ return '<div class="hier-items">'+['Maintain verticals','No visual clutter','No low-res'].map(t=>`<span class="tag ${gs('negative').has(t)?'on':'dim'}" onclick="tagTog('negative','${esc(t)}')">${t}</span>`).join('')+'</div>'; }
-function rTechOut(){ return mkSpec('tech_type',[{v:'front elevation',t:'Elevation',d:''},{v:'section',t:'Section',d:''}]); }
-
-// ── PROMPT GENERATION ────────────────────────────────────────
-function renderPrompt(){
-  const isI=S.ie==='interior', a=id=>gv(id)||`[${id}]`;
-  let t=`${a('role')} a ${a('med')} of ${isI?'interior of ':''}${S.type}. Style: ${a('style')}. `;
-  if(isI) t+=`Sectional Logic: ${a('section')}. Height: ${a('ceil')}. Features: ${gv('sp_ft')||''}. `;
-  t+=`Materials: ${a(isI?'int_mat':'ext_mat')}. Weather: ${a('weather')}. Light: ${a('lt_t')}. Negative: ${a('negative')}.`;
-  document.getElementById('ptx').innerHTML=t;
+function rRole(){
+  const tags={
+    creation:['Act as an expert architectural visualizer and generate','Produce a production-grade 3D render of'],
+    sketch:  ['RENDER the provided sketch, locking geometry','Solidify sketch linework into 3D forms'],
+    rigid:   ['Render the provided technical input, locking geometry','Apply photorealistic textures without modifying geometry'],
+    inpaint: ['Preserve exact composition, isolate target'],
+    to_tech: ['Convert image into technical architectural drawing','Extract geometry into measured line drawing'],
+  };
+  return '<div class="hier-items">'+(tags[S.f]||[]).map(t=>`<span class="tag ${S.sel.role===t?'on':'dim'}" onclick="S.sel.role='${esc(t)}';render()">${t}</span>`).join('')+'</div>';
 }
 
-function cpFinal(){
-  const isI=S.ie==='interior', a=id=>gv(id)||'';
-  let t=`${a('role')} a ${a('med')} of ${isI?'interior of ':''}${S.type}. Style: ${a('style')}. `;
-  if(isI) t+=`Sectional Logic: ${a('section')}. Height: ${a('ceil')}. Features: ${gv('sp_ft')||''}. `;
-  t+=`Materials: ${a(isI?'int_mat':'ext_mat')}. Weather: ${a('weather')}. Light: ${a('lt_t')}. Negative: ${a('negative')}.`;
-  navigator.clipboard.writeText(t.replace(/\s+/g,' ').trim()).then(()=>alert("Prompt Copied!"));
+function rMedium(){
+  let h='<div class="hier-l">Category <span class="badge">pick one</span></div>';
+  h+=mkSpec('med_cat',[{v:'photorealistic',t:'Photorealistic',d:'Camera quality.'},{v:'linework',t:'Linework',d:'Line drawing.'},{v:'physical_model',t:'Physical Model',d:'Model photo.'},{v:'sketch_style',t:'Sketch',d:'Hand-drawn.'},{v:'painting',t:'Painting',d:'Watercolor, oil.'},{v:'diagram',t:'Diagram',d:'Analytical.'}]);
+  const cat=S.sel.med_cat;
+  if(cat==='photorealistic'){
+    h+='<div class="hier-l">Resolution</div>';
+    h+=mkSpec('med',[{v:'2K quick',t:'2K Quick',d:'Draft.'},{v:'4K architectural photography',t:'4K',d:'Client.'},{v:'8K cinematic',t:'8K Hero',d:'Competition.'}]);
+    h+='<div class="hier-l">Engine <span class="badge">optional</span></div>';
+    h+=mkSpec('med_eng',[{v:'V-Ray',t:'V-Ray',d:'Sharp.'},{v:'Corona',t:'Corona',d:'Soft.'},{v:'UE5',t:'UE5',d:'Cinematic.'},{v:'Lumion',t:'Lumion',d:'Quick.'}]);
+  } else if(cat==='linework'){
+    h+=mkSpec('med',[{v:'black lines on white',t:'Black/White',d:'Classic.'},{v:'white lines on black',t:'White/Black',d:'Dramatic.'},{v:'colored lines',t:'Colored',d:'Material hints.'},{v:'hidden-line wireframe',t:'Hidden-Line',d:'3D wire.'}]);
+    h+='<div class="hier-l">Weight <span class="badge">optional</span></div>';
+    h+=mkSpec('med_lw',[{v:'thin hairline',t:'Thin',d:'Technical.'},{v:'medium weight',t:'Medium',d:'Standard.'},{v:'bold contour',t:'Bold',d:'Expressive.'}]);
+  } else if(cat==='physical_model'){
+    h+=mkSpec('med',[{v:'chipboard + basswood model',t:'Chipboard',d:'School.'},{v:'3D printed resin',t:'3D Print',d:'Precise.'},{v:'CNC topo model',t:'CNC Topo',d:'Landscape.'},{v:'foam core study',t:'Foam Core',d:'Quick.'}]);
+  } else if(cat==='sketch_style'){
+    h+=mkSpec('med',[{v:'pencil sketch',t:'Pencil',d:'Graphite.'},{v:'charcoal sketch',t:'Charcoal',d:'Dramatic.'},{v:'ink pen sketch',t:'Ink Pen',d:'Sharp.'},{v:'marker rendering',t:'Marker',d:'Bold color.'}]);
+    h+='<div class="hier-l">Paper <span class="badge">optional</span></div>';
+    h+=mkSpec('med_paper',[{v:'white paper',t:'White',d:''},{v:'toned paper',t:'Toned',d:'Warm.'},{v:'black paper',t:'Black',d:'Highlights.'}]);
+  } else if(cat==='painting'){
+    h+=mkSpec('med',[{v:'watercolor',t:'Watercolor',d:'Flowing.'},{v:'oil painting',t:'Oil',d:'Rich, heavy.'},{v:'gouache',t:'Gouache',d:'Flat, opaque.'},{v:'matte painting',t:'Matte',d:'Cinematic.'}]);
+    const pt=['Loose brushstrokes','Tight detailed','Wet-on-wet','Dry brush','Palette knife','Impressionistic'];
+    h+='<div class="hier-l">Technique <span class="badge">optional</span></div><div class="hier-items">'+pt.map(t=>`<span class="tag ${gs('med_tech').has(t)?'on':'dim'}" onclick="tagTog('med_tech','${esc(t)}')">${t}</span>`).join('')+'</div>';
+  } else if(cat==='diagram'){
+    h+=mkSpec('med',[{v:'white clay render',t:'Clay Render',d:'Material study.'},{v:'massing diagram',t:'Massing',d:'Volume.'},{v:'exploded axonometric',t:'Exploded',d:'Systems.'},{v:'wireframe',t:'Wireframe',d:'Structure.'}]);
+  }
+  return h;
 }
 
-// ── UTILS ────────────────────────────────────────────────────
-function esc(s){ return s.replace(/'/g,"\\'"); }
-function mkSpec(id,opts){ let h='<div class="spec-t" style="display:flex;gap:5px">'; opts.forEach(o=>h+=`<div class="spec-o ${S.sel[id]===o.v?'on':''}" style="flex:1;border:1px solid #bd;padding:5px;cursor:pointer" onclick="S.sel['${id}']='${esc(o.v)}';render()">${o.t}</div>`); return h+'</div>'; }
-function tagTog(id,v){ const s=gs(id); s.has(v)?s.delete(v):s.add(v); render(); }
-function togD(el){ el.nextElementSibling.style.display=(el.nextElementSibling.style.display==='block'?'none':'block'); }
-function isROn(r){ for(const v of Object.values(S.sel)) if(v instanceof Set && v.has(r)) return true; return false; }
-function rTog(sid,v){ if(isROn(v)) { for(const s of Object.values(S.sel)) if(s instanceof Set) s.delete(v); } else gs(sid).add(v); render(); }
-function cntCat(sid,tags){ let c=0; tags.forEach(t=>{ if(gs(sid).has(t))c++; }); return c; }
+function rTechOut(){
+  let h='<div class="hier-l">Drawing Type</div>';
+  h+=mkSpec('tech_type',[{v:'front elevation',t:'Elevation',d:'Facade.'},{v:'section',t:'Section',d:'Cut through.'},{v:'floor plan',t:'Plan',d:'Top-down.'},{v:'axonometric',t:'Axon',d:'3D no perspective.'},{v:'exploded axon',t:'Exploded',d:'Layers apart.'},{v:'site plan',t:'Site Plan',d:'Context.'}]);
+  h+='<div class="hier-l">Style</div>';
+  h+=mkSpec('tech_style',[{v:'crisp black lines on white background',t:'Black/White',d:'Classic.'},{v:'white lines on dark background',t:'White/Dark',d:'Dramatic.'},{v:'colored with materials',t:'Colored',d:'Material hints.'}]);
+  h+='<div class="hier-l">Detail <span class="badge">optional</span></div>';
+  h+=mkSpec('tech_detail',[{v:'schematic',t:'Schematic',d:'Massing only.'},{v:'design development',t:'DD',d:'Major elements.'},{v:'construction document',t:'CD',d:'Everything.'}]);
+  return h;
+}
+
+function rStyle(){
+  const recs=new Set((getG('style')||{}).r||[]), recs2=new Set((getG('style')||{}).r2||[]);
+  const styleCount=gs('style').size;
+  let h='';
+  if(styleCount>1) h+=`<div class="guide gw"><div class="gl mono">⚠️ Multiple styles selected (${styleCount})</div><div class="gt">AI works best with <strong>ONE style</strong>. Multiple styles may produce confused results.</div></div>`;
+  const cats=[
+    {c:'Monolithic',       t:['Stoic Monolithic Form','Contemporary Brutalism','Haptic Materiality','Atmospheric Depth']},
+    {c:'Vibrant',          t:['Pixelated Massing','Data-Driven Form','Typological Remix','Green Dip']},
+    {c:'High-Tech',        t:['Engineered Rationalism','Industrial Minimalism','Structural Expressionism','High-Tech','Biomimetic curvature']},
+    {c:'Contextual',       t:['Critical Regionalism','Desert Modernism','Tropical Modernism','Nordic Minimalism','Parametric Vernacular']},
+    {c:'Parametric',       t:['Fluid Parametric','Dynamic Loops','Topologically Optimized','Sinuous Curves']},
+    {c:'Deconstructivist', t:['Angular Fragmentation','Folded Plate Geometry','Folded Tectonics']},
+    {c:'Firm Presets',     t:['Pragmatic Utopian','Diagrammatic Programmatic','Pixelated Density','Engineered Rationalism','Monolithic Phenomenological','Topographical Integration','Particulate Tectonics','Material Craftsmanship','High-Tech Structuralism','Folded Tectonics','Dynamic Loops']},
+    {c:'Historical',       t:['Art Deco Revival','Art Nouveau','Neo-Futurism','International Style','Postmodern Classicism']},
+  ];
+  cats.forEach(ca=>{
+    const cnt=cntCat('style',ca.t);
+    h+=`<div class="dsec"><div class="dh" onclick="togD(this)"><span class="dht">${ca.c}</span>${cnt?`<span class="dhc mono">✓${cnt}</span>`:''}</div><div class="db${cnt?' open':''}"><div class="dtags">${ca.t.map(t=>{const on=gs('style').has(t),rec=recs.has(t),sec=recs2.has(t);return`<span class="tag ${on?'on':''} ${rec&&!on?'rec':''} ${sec&&!on&&!rec?'sec-t':''} ${!on&&!rec&&!sec?'dim':''}" onclick="stylePick('${esc(t)}')">${t}</span>`;}).join('')}</div></div></div>`;
+  });
+  return h;
+}
+
+function stylePick(val){
+  const s=gs('style');
+  if(s.has(val)) s.delete(val);
+  else { s.clear(); s.add(val); }
+  render();
+}
+
+function rCamera(){
+  let h='<div class="hier-l">Height <span class="badge">required</span></div>';
+  h+=mkSpec('cam_h',[{v:"worm's-eye",t:"Worm's Eye",d:'Up.'},{v:'eye-level',t:'Eye Level',d:'Natural.'},{v:'elevated',t:'Elevated',d:'Overview.'},{v:'drone',t:'Drone',d:'High.'},{v:"bird's-eye",t:"Bird's Eye",d:'Above.'}]);
+  h+='<div class="hier-l">Distance <span class="badge">required</span></div>';
+  h+=mkSpec('cam_d',[{v:'close-up',t:'Detail',d:'Texture.'},{v:'mid-range',t:'Mid-Range',d:'Facade.'},{v:'wide shot',t:'Wide',d:'Context.'}]);
+  h+='<div class="hier-l">Lens <span class="badge">optional</span></div>';
+  h+=mkSpec('cam_l',[{v:'24mm',t:'24mm',d:'Wide.'},{v:'35mm',t:'35mm',d:'Natural.'},{v:'50mm',t:'50mm',d:'Portrait.'},{v:'85mm',t:'85mm',d:'Compressed.'}]);
+  h+='<div class="hier-l">Aspect <span class="badge">optional</span></div>';
+  h+=mkSpec('cam_a',[{v:'1:1',t:'1:1',d:'Square.'},{v:'4:3',t:'4:3',d:'Pres.'},{v:'16:9',t:'16:9',d:'Hero.'},{v:'2.35:1',t:'Cine',d:'Pan.'}]);
+  return h;
+}
+
+function rScale(){
+  let h='<div class="hier-l">Stories</div>';
+  h+=mkSpec('sc_st',[{v:'1-story',t:'1',d:''},{v:'2-3',t:'2–3',d:''},{v:'4-6',t:'4–6',d:''},{v:'7-12',t:'7–12',d:''},{v:'13-20',t:'13–20',d:''},{v:'20+',t:'20+',d:''}]);
+  h+='<div class="hier-l">Footprint</div>';
+  h+=mkSpec('sc_fp',[{v:'pavilion',t:'Pavilion',d:''},{v:'mid-block',t:'Mid-Block',d:''},{v:'full block',t:'Full Block',d:''},{v:'campus',t:'Campus',d:''}]);
+  h+='<div class="hier-l">Massing <span class="badge">optional</span></div>';
+  const mt=['Boolean subtraction','Cantilever','Stepped terracing','Interlocking volumes','Courtyard','Pilotis','Heavy plinth','Chamfered corners'];
+  h+='<div class="hier-items">'+mt.map(t=>`<span class="tag ${gs('sc_ms').has(t)?'on':'dim'}" onclick="tagTog('sc_ms','${esc(t)}')">${t}</span>`).join('')+'</div>';
+  return h;
+}
+
+function rSite(){
+  let h='<div class="hier-l">Urban Density</div>';
+  h+=mkSpec('si_den',[{v:'rural',t:'Rural',d:'Open.'},{v:'suburban',t:'Suburban',d:'Low-rise.'},{v:'urban',t:'Urban',d:'City.'},{v:'downtown',t:'Downtown',d:'Dense.'}]);
+  h+='<div class="hier-l">Topography</div>';
+  h+=mkSpec('si_tp',[{v:'flat',t:'Flat',d:''},{v:'slope',t:'Slope',d:''},{v:'hillside',t:'Hillside',d:''},{v:'waterfront',t:'Waterfront',d:''}]);
+  const clim=CLIMATES.find(c=>c.id===S.climate);
+  const badVeg=clim?.bad||[];
+  const selectedBad=[...gs('si_ls')].filter(v=>badVeg.includes(v));
+  if(selectedBad.length>0){
+    h+=`<div class="guide gw"><div class="gl mono">⚠️ Climate mismatch — ${clim.t} (${clim.d})</div><div class="gt">These plants don't grow naturally in your climate zone: <strong>${selectedBad.join(', ')}</strong>.</div><div class="gr">${selectedBad.map(v=>`<span class="rt pri" onclick="gs('si_ls').delete('${esc(v)}');render()">✕ Remove ${v}</span>`).join('')}</div></div>`;
+  }
+  h+=`<div class="hier-l">Landscape <span class="badge">climate: ${clim?clim.t:'—'} — defaults pre-filled</span></div>`;
+  const lt=['Deciduous trees','Conifers','Ornamental grasses','Wildflower meadow','Tropical palms','Dense tropical planting','Desert xeriscape','Olive trees','Birch grove','Bioswale','Reflecting pool','Fountain','Cobblestone','DG paths','Permeable pavers','Stone paving','Street trees','Allee / Bosque','Amphitheater','Outdoor dining','Cherry blossoms','Bamboo grove','Lavender','Date palms','Agave and cacti','Banana plants','Frangipani','Bougainvillea','Pine forest','Ferns','Moss ground cover','Moss-covered stone','Dense tropical canopy'];
+  const climRec=new Set(clim?.veg||[]), climBad=new Set(badVeg);
+  h+='<div class="hier-items">'+lt.map(t=>{
+    const on=gs('si_ls').has(t), rec=climRec.has(t), bad=climBad.has(t);
+    let cls=on?'on':'dim';
+    if(rec&&!on) cls='rec';
+    if(bad&&!on) cls='dim';
+    return`<span class="tag ${cls}" onclick="tagTog('si_ls','${esc(t)}')">${t}</span>`;
+  }).join('')+'</div>';
+  return h;
+}
+
+function rIntScale(){
+  let h='<div class="hier-l">Ceiling Height</div>';
+  h+=mkSpec('ceil',[{v:'2.4m',t:'2.4m',d:'Cozy.'},{v:'3m',t:'3m',d:'Standard.'},{v:'4m',t:'4m',d:'Gallery.'},{v:'6m',t:'6m',d:'Atrium.'},{v:'9m+',t:'9m+',d:'Grand.'}]);
+  h+='<div class="hier-l">Features <span class="badge">optional</span></div>';
+  const ft=['Atrium void','Grand staircase','Mezzanine','Skylight','Floor-to-ceiling glass','Courtyard view','Panoramic wall','Clerestory'];
+  h+='<div class="hier-items">'+ft.map(t=>`<span class="tag ${gs('sp_ft').has(t)?'on':'dim'}" onclick="tagTog('sp_ft','${esc(t)}')">${t}</span>`).join('')+'</div>';
+  return h;
+}
+
+function rWeather(){
+  const W=[
+    {s:'Spring',ts:[{t:'Morning',c:[{v:'spring morning mist + blossoms',n:'Mist',d:'Fresh.'},{v:'spring after rain, wet',n:'After Rain',d:'Reflective.'}]},{t:'Midday',c:[{v:'bright spring midday',n:'Bright',d:'Sharp.'},{v:'overcast spring diffuse',n:'Overcast',d:'Even.'}]},{t:'Golden',c:[{v:'golden spring through blossoms',n:'Golden',d:'Romantic.'}]}]},
+    {s:'Summer',ts:[{t:'Morning',c:[{v:'summer morning soft warm',n:'Soft',d:'Gentle.'}]},{t:'Midday',c:[{v:'bright mid-summer harsh sun',n:'Harsh Sun',d:'Contrast.'},{v:'hazy summer afternoon',n:'Hazy',d:'Relaxed.'}]},{t:'Golden',c:[{v:'golden hour long shadows',n:'Golden Hour',d:'Favorite.'}]},{t:'Blue',c:[{v:'blue hour + interior glow',n:'Blue+Glow',d:'Hero.'}]},{t:'Night',c:[{v:'summer night light trails',n:'Night',d:'Dramatic.'}]}]},
+    {s:'Autumn',ts:[{t:'Morning',c:[{v:'overcast autumn + foliage',n:'Foliage',d:'Colorful.'},{v:'autumn after rain wet',n:'After Rain',d:'Cinematic.'},{v:'autumn morning fog',n:'Fog',d:'Moody.'}]},{t:'Afternoon',c:[{v:'low autumn sun + leaves',n:'Low Sun',d:'Warm.'}]},{t:'Golden',c:[{v:'deep amber autumn',n:'Amber',d:'Rich.'}]},{t:'Dusk',c:[{v:'autumn dusk purple + glow',n:'Dusk',d:'Elegant.'}]}]},
+    {s:'Winter',ts:[{t:'Day',c:[{v:'flat winter frost',n:'Frost',d:'Austere.'},{v:'heavy snowstorm',n:'Snow',d:'Dramatic.'},{v:'light snow gentle',n:'Light Snow',d:'Peaceful.'}]},{t:'Golden',c:[{v:'low winter gold on snow',n:'Gold',d:'Rare.'}]},{t:'Night',c:[{v:'winter night snow + glow',n:'Snow+Glow',d:'Cozy.'}]}]},
+  ];
+  let h=''; const cur=S.sel.weather;
+  W.forEach(s=>{
+    const has=s.ts.some(t=>t.c.some(c=>c.v===cur));
+    h+=`<div class="dsec"><div class="dh" onclick="togD(this)"><span class="dht">${s.s}</span>${has?'<span class="dhc mono">✓</span>':''}</div><div class="db${has?' open':''}">`;
+    s.ts.forEach(t=>{
+      h+=`<div class="dsl">${t.t}</div><div class="spg">`;
+      t.c.forEach(c=>{ const on=cur===c.v; h+=`<div class="spc ${on?'on':''}" onclick="S.sel.weather=${on?'null':`'${esc(c.v)}'`};render()"><div class="spt">${c.n}</div><div class="spd">${c.d}</div></div>`; });
+      h+=`</div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+
+function rLight(){
+  const isI=S.ie==='interior', recs=new Set((getG('lighting')||{}).r||[]), recs2=new Set((getG('lighting')||{}).r2||[]);
+  let h='<div class="hier-l">Temperature <span class="badge">required</span></div>';
+  h+=mkSpec('lt_t',[{v:'cool 6500K',t:'6500K',d:'Clinical.'},{v:'neutral 4000K',t:'4000K',d:'Clean.'},{v:'warm 3000K',t:'3000K',d:'Warm.'},{v:'amber 2200K',t:'2200K',d:'Intimate.'}]);
+  h+='<div class="hier-l">Sources <span class="badge">optional</span></div>';
+  const lt=isI?['Linear cove','Wall washers','Spotlights','Uplighting','Pendant cluster','Floor lamp','Under-cabinet','Skylight','Backlit panels','Chandelier','Track lighting','Toe-kick LED','God rays','Candle']:['Soft sunlight','Harsh sun','Diffuse overcast','Interior glow through glass','Light trails','Facade uplighting','Path lighting','Bollard lights','Neon glow','God rays','Chiaroscuro'];
+  h+='<div class="hier-items">'+lt.map(t=>{ const on=gs('lt_s').has(t),rec=recs.has(t),sec=recs2.has(t); return`<span class="tag ${on?'on':''} ${rec&&!on?'rec':''} ${sec&&!on&&!rec?'sec-t':''} ${!on&&!rec&&!sec?'dim':''}" onclick="tagTog('lt_s','${esc(t)}')">${t}</span>`; }).join('')+'</div>';
+  return h;
+}
+
+function rEnt(){
+  const isI=S.ie==='interior';
+  let h='<div class="hier-l">Density</div>';
+  h+=mkSpec('en_cr',[{v:'empty',t:'Empty',d:'No people.'},{v:'single figure',t:'1',d:'Scale.'},{v:'few (3-5)',t:'Few',d:'Light.'},{v:'moderate',t:'Moderate',d:'Active.'},{v:'crowded',t:'Crowded',d:'Full.'}]);
+  h+='<div class="hier-l">People <span class="badge">optional</span></div>';
+  const pt=isI?['Reading','Laptop','Students','Whiteboard','Family','Chef','Receptionist','Shoppers','Wheelchair user','Children']:['Commuters','Students','Family','Dog walker','Cyclist','Tourist','Umbrella','Winter coat','Children','Elderly','Wheelchair user','Outdoor diners'];
+  h+='<div class="hier-items">'+pt.map(t=>`<span class="tag ${gs('en_who').has(t)?'on':'dim'}" onclick="tagTog('en_who','${esc(t)}')">${t}</span>`).join('')+'</div>';
+  h+='<div class="hier-l">Camera FX</div>';
+  h+=mkSpec('en_fx',[{v:'sharp',t:'Sharp',d:''},{v:'slight blur',t:'Blur',d:'Classic.'},{v:'heavy blur',t:'Heavy',d:'Flow.'},{v:'ghosting',t:'Ghost',d:'Ethereal.'}]);
+  if(!isI){ h+='<div class="hier-l">Vehicles <span class="badge">optional</span></div>'; h+=mkSpec('en_vh',[{v:'none',t:'None',d:''},{v:'bicycle',t:'Min',d:''},{v:'cars',t:'Some',d:''},{v:'traffic',t:'Active',d:''}]); }
+  return h;
+}
+
+function rColor(){
+  const gr=[{l:'Cool',t:['Pale blue-grey','Cool stone + glass','Vivid teal']},{l:'Neutral',t:['Bleached natural','True-color materials','Rich contrast','Deep green + wood']},{l:'Warm',t:['Dusty terracotta','Warm earth tones','Timber + brass','Rich amber','Deep orange + charcoal']},{l:'Mono',t:['All white','Grey + 1 accent','B&W contrast','Dark moody']}];
+  let h='';
+  gr.forEach(g=>{ h+=`<div class="dsl">${g.l}</div><div class="dtags">${g.t.map(t=>`<span class="tag ${gs('color').has(t)?'on':'dim'}" onclick="tagTog('color','${esc(t)}')">${t}</span>`).join('')}</div>`; });
+  return h;
+}
+
+function rNeg(){
+  if(!S.sel.negative) S.sel.negative=new Set(['Maintain verticals','No text or watermarks','No blurry foreground',"Don't crop building",'No distorted faces','No visual clutter']);
+  const tags=['Maintain verticals','No organic curves','No blob architecture',"Don't modify footprint",'No warped perspective','No visual clutter','No blown-out skies','No muddy textures','No text or watermarks','No low-res','No blurry foreground',"Don't crop building",'No generic grass','No heavy traffic','No distorted faces','No flying cars','No concept art','No bloom','No soft focus','No chromatic aberration'];
+  return '<div class="hier-items">'+tags.map(t=>`<span class="tag ${S.sel.negative?.has(t)?'on':'dim'}" onclick="tagTog('negative','${esc(t)}')">${t}</span>`).join('')+'</div>';
+}
+
+// ── DRILL RENDERER ───────────────────────────────────────────
+function rDrill(sid,data){
+  const recs=new Set((getG(sid)||{}).r||[]), recs2=new Set((getG(sid)||{}).r2||[]);
+  let h='';
+  data.forEach(sec=>{
+    const cnt=cntD(sid,sec);
+    h+=`<div class="dsec"><div class="dh" onclick="togD(this)"><span class="dht">${sec.t}</span>${cnt?`<span class="dhc mono">✓${cnt}</span>`:''}</div><div class="db${cnt?' open':''}">`;
+    sec.subs.forEach(sub=>{
+      h+=`<div class="dsl">${sub.l}</div><div class="dtags">`;
+      sub.tags.forEach(t=>{
+        const on=gs(sid).has(t),rec=recs.has(t),sec2=recs2.has(t);
+        h+=`<span class="tag ${on?'on':''} ${rec&&!on?'rec':''} ${sec2&&!on&&!rec?'sec-t':''} ${!on&&!rec&&!sec2?'dim':''}" onclick="tagTog('${sid}','${esc(t)}')">${t}</span>`;
+      });
+      h+=`</div>`;
+    });
+    h+=`</div></div>`;
+  });
+  return h;
+}
+function cntD(sid,sec){ let c=0; sec.subs.forEach(s=>s.tags.forEach(t=>{ if(gs(sid).has(t))c++; })); return c; }
 
 // ── MATERIAL DATA ────────────────────────────────────────────
-function getExtD(){ return [{t:'Mass',subs:[{tags:['Board-formed concrete','Honed travertine','Corten steel']}]},{t:'Skin',subs:[{tags:['Unitized curtain wall','Fritted glass','Ceramic louvers']}]},{t:'Sustainable',subs:[{tags:['BIPV','Kinetic shading facade','Green roof (sedum)']}]}]; }
-function getIntD(){ return [{t:'Surfaces',subs:[{tags:['Polished concrete','White oak plank','Venetian plaster']}]},{t:'Systems',subs:[{tags:['Exposed MEP plenum','Glulam beams','Stretch fabric ceiling']}]}]; }
-function getSustD(){ return [{t:'Logic',subs:[{tags:['BIPV','Double-skin facade','Native meadow']}]}]; }
-function getFurnD(){ return [{t:'FF&E',subs:[{tags:['Lounge chairs','Reception desk','Bookshelf wall']}]}]; }
+function getExtD(){ return [{t:'Concrete & Stone',subs:[{l:'Type',tags:['Board-formed concrete','Pitted brutalist','Smooth precast','Fluted precast','Rammed earth','Bush-hammered limestone','Honed travertine']},{l:'Finish',tags:['Natural grey','White concrete','Dark charcoal','Warm sandstone','Weathered']}]},{t:'Metal',subs:[{l:'Type',tags:['Corten steel (weathered rust)','Standing seam zinc','Brushed aluminum','Perforated stainless mesh','Copper panels (patina)','Insulated metal panels']},{l:'Pattern',tags:['Vertical seam','Horizontal lapped','Perforated screen','Cassette panels']}]},{t:'Wood',subs:[{l:'Type',tags:['Shou Sugi Ban (charred)','Western Red Cedar slats','Vertical battens','Horizontal rainscreen','CNC timber louvers','Timber shingle']},{l:'Tone',tags:['Natural light','Honey warm','Dark stained','Charred black','Weathered grey']}]},{t:'Glass & Curtain Wall',subs:[{l:'System',tags:['Unitized curtain wall','Frameless structural glazing','Double-skin facade','Punched windows','Ribbon windows']},{l:'Glass',tags:['Low-iron ultra-clear','Bird-safe fritted','Reflective bronze-tinted','Light-green tinted','Electrochromic smart','Spandrel (opaque)','Polycarbonate','Channel glass']},{l:'Mullion',tags:['Polished stainless steel','Anodized aluminum','Black powder-coated','Gunmetal','Minimal silicone']}]},{t:'Shading',subs:[{l:'Type',tags:['Terracotta baguettes','Brise-soleil','Fixed louvers','Timber screen','Metal mesh','Kinetic louvers','PTFE membrane']}]},{t:'Roof',subs:[{l:'Type',tags:['Standing seam metal','Green roof (sedum)','ETFE cushion','Steel truss','PV integrated','Flat concrete','Copper (patina)']}]},{t:'Base',subs:[{l:'Type',tags:['Columns + glass','Rusticated stone','Glass at ground','Pilotis','Canopy entry','Arcade','Masonry plinth']}]}]; }
+function getIntD(){ return [{t:'Walls',subs:[{l:'Raw',tags:['Board-formed concrete','Exposed brick','Raw plaster','Rammed earth']},{l:'Warm',tags:['Limewash plaster','White oak joinery','Acoustic felt','Cork wall','Acoustic timber slats','Venetian plaster']},{l:'Refined',tags:['Back-painted glass','Writeable glass','Lacquered panel','Fabric acoustic']}]},{t:'Floors',subs:[{l:'Hard',tags:['Polished concrete','Exposed aggregate','Epoxy terrazzo','Honed granite','Marble mosaic','Raised access floor']},{l:'Warm',tags:['White oak plank','Dark walnut','End-grain timber','Cork tile','Bamboo','Herringbone parquet']}]},{t:'Ceilings',subs:[{l:'Exposed',tags:['Exposed MEP plenum','Waffle slab','Painted ductwork']},{l:'Finished',tags:['Acoustic timber slats','Glulam soffit','Perforated baffles','Cloud ceiling','Stretch fabric']}]},{t:'Structure',subs:[{l:'Type',tags:['Exposed steel columns','Steel trusses','CLT panels','Glulam beams','Timber post-beam','Concrete reveals']}]},{t:'Partitions',subs:[{l:'Type',tags:['Full-height glass','Frosted glass','Steel-framed glass','Acoustic curtain','Timber screen','Pivot door','Frameless glass door']}]}]; }
+function getSustD(){ return [{t:'Roof',subs:[{l:'Water',tags:['Green roof (sedum)','Blue roof','Rainwater cistern']},{l:'Energy',tags:['Rooftop PV array','Solar thermal','Cool roof']},{l:'Ecology',tags:['Pollinator garden','Bird habitat']}]},{t:'Facade',subs:[{l:'Energy',tags:['BIPV','Passive shading','Double-skin ventilation']},{l:'Ecology',tags:['Living wall','Vertical planting']}]},{t:'Ground',subs:[{l:'Water',tags:['Bioswale','Permeable pavers','Retention pond','Constructed wetland']},{l:'Energy',tags:['Solar bollards','EV charging']},{l:'Ecology',tags:['Native meadow','Pollinator corridor','Food garden']}]}]; }
+function getFurnD(){ return [{t:'Seating',subs:[{l:'Lounge',tags:['Lounge chairs','Sofa','Barcelona chairs','Bean bags','Window seat','Banquette']},{l:'Task',tags:['Desk chairs','Bar stools','Collaborative pod','Lecture seats']},{l:'Public',tags:['Reading nook','Museum bench','Waiting chairs']}]},{t:'Tables',subs:[{l:'Work',tags:['Sit-stand desk','Communal table','Standing table','Kitchen island']},{l:'Display',tags:['Reception desk','Bookshelf wall','Display vitrine']}]},{t:'Atmosphere',subs:[{l:'Lighting',tags:['Feature pendant','Chandelier','Pendant cluster','Track lighting','Floor lamp','Exposed filament','Neon sign']},{l:'Plants',tags:['Plant wall','Large planter','Olive tree','Hanging plants','Indoor tropical']},{l:'Features',tags:['Fireplace','Art installation','Water feature','Acoustic rug','Candles']}]},{t:'Equipment',subs:[{l:'Tech',tags:['Wayfinding totem','Projection screen','Whiteboard wall']},{l:'Transit',tags:['Ticket machine','Flight board','Gate seats','Moving walkway','Escalators']}]}]; }
 
+// ── UTILITIES ────────────────────────────────────────────────
+function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+function mkSpec(id,opts){
+  const cur=S.sel[id];
+  let h='<div class="spec"><div class="spec-t">';
+  opts.forEach(o=>{ const on=cur===o.v; h+=`<div class="spec-o ${on?'on':''}" onclick="S.sel['${id}']=${on?'null':`'${esc(o.v)}'`};render()"><div class="sot">${o.t}</div><div class="sod">${o.d}</div></div>`; });
+  h+='</div></div>';
+  return h;
+}
+function tagTog(id,val){ if(!S.sel[id])S.sel[id]=new Set(); S.sel[id].has(val)?S.sel[id].delete(val):S.sel[id].add(val); render(); }
+function togD(el){ el.nextElementSibling.classList.toggle('open'); }
+function isROn(r){ for(const[k,v]of Object.entries(S.sel)){ if(v instanceof Set&&v.has(r))return true; } return false; }
+function rTog(sid,val){ for(const[k,v]of Object.entries(S.sel)){ if(v instanceof Set&&v.has(val)){ v.delete(val); render(); return; } } if(!S.sel[sid])S.sel[sid]=new Set(); S.sel[sid].add(val); render(); }
+function cntCat(sid,tags){ let c=0; tags.forEach(t=>{ if(gs(sid).has(t))c++; }); return c; }
+
+// ── PROMPT RENDER ────────────────────────────────────────────
+function renderPrompt(){
+  const steps=getSteps(); let total=0,filled=0;
+  Object.keys(S.sel).forEach(k=>{ const v=S.sel[k]; total++; if(v instanceof Set?v.size>0:!!v)filled++; });
+  document.getElementById('prp').innerHTML=`${filled} filled<div class="pbar"><div class="pfill" style="width:${Math.min(filled/Math.max(total,1)*100,100)}%"></div></div>`;
+  const isI=S.ie==='interior', p=[], curId=steps[S.step]?.id;
+  const add=t=>p.push({y:'t',t}), addV=(id,l)=>p.push({y:'v',id,l});
+
+  if(S.f==='to_tech'){ addV('role','Role'); add('. Produce a '); addV('tech_type','Type'); add(' in '); addV('tech_style','Style'); if(gv('tech_detail')){ add(' at '); addV('tech_detail','Detail'); } add(` of ${S.type}. `); addV('negative','Constraints'); add('.'); }
+  else if(S.f==='inpaint'){ add('Preserve composition. Isolate [TARGET], replace with '); addV(isI?'int_mat':'ext_mat','Materials'); add('.'); }
+  else{
+    addV('role','Role'); add(' a '); addV('med','Medium'); if(gv('med_eng')){ add(' ('); addV('med_eng','Engine'); add(')'); }
+    add(isI?` of interior of ${S.type}. `:` of ${S.type}. `);
+    if(S.f==='creation'&&!isI){ add('Building: '); addV('sc_st','Stories'); add(', '); addV('sc_fp','Footprint'); if(gv('sc_ms')){ add(', '); addV('sc_ms','Massing'); } add('. '); }
+    if(S.f!=='rigid'){ add('Style: '); addV('style','Style'); add('. '); }
+    if(S.f==='creation'){ add('Camera: '); addV('cam_h','Height'); add(' '); addV('cam_d','Distance'); if(gv('cam_l')){ add(' '); addV('cam_l','Lens'); } if(gv('cam_a')){ add(' '); addV('cam_a','Aspect'); } add('. '); }
+    if(S.f==='sketch') add('Lock geometry. ');
+    if(S.f==='rigid')  add('Lock geometry exactly. ');
+    add('Materials: '); addV(isI?'int_mat':'ext_mat','Materials'); add('. ');
+    if(gv('med_tech')){ add('Technique: '); addV('med_tech','Tech'); add('. '); }
+    if(isI){ add('Furniture: '); addV('furniture','Furniture'); add('. Height: '); addV('ceil','Ceil'); if(gv('sp_ft')){ add(' + '); addV('sp_ft','Features'); } add('. '); }
+    if(!isI){
+      if(gv('sustain')){ add('Sustainable: '); addV('sustain','LEED'); add('. '); }
+      add('Site: '); addV('si_den','Density'); add(' '); addV('si_tp','Topo'); if(gv('si_ls')){ add(' + '); addV('si_ls','Landscape'); } add('. ');
+    }
+    add('During '); addV('weather','Weather'); add('. Light: '); addV('lt_t','Temp'); if(gv('lt_s')){ add(' + '); addV('lt_s','Sources'); } add('. ');
+    add('People: '); addV('en_cr','Crowd'); if(gv('en_who')){ add(' ('); addV('en_who','Who'); add(')'); } add(' '); addV('en_fx','FX'); if(gv('en_vh')){ add('. Vehicles: '); addV('en_vh','Veh'); } add('. ');
+    if(isI&&gv('color')){ add('Color: '); addV('color','Color'); add('. '); }
+    add('Constraints: '); addV('negative','Constraints'); add('.');
+  }
+
+  let h='';
+  p.forEach(x=>{
+    if(x.y==='t'){ h+=`<span class="pc">${x.t}</span>`; return; }
+    const v=gv(x.id), isCur=x.id===curId;
+    if(v) h+=`<span class="pf">${v}</span>`;
+    else if(isCur) h+=`<span class="pw">[${x.l}]</span>`;
+    else{ const si=steps.findIndex(s=>s.id===x.id); h+=`<span class="pe" onclick="goS(${si>=0?si:0})">[${x.l}]</span>`; }
+  });
+  document.getElementById('ptx').innerHTML=h;
+}
+
+// ── CLIPBOARD FALLBACK ───────────────────────────────────────
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+  document.body.appendChild(ta);
+  ta.focus(); ta.select();
+  try{ document.execCommand('copy'); if(cb)cb(); }catch(e){ alert('Copy failed — please copy manually:\n\n'+text); }
+  document.body.removeChild(ta);
+}
+
+// ── COPY FINAL PROMPT ────────────────────────────────────────
+function cpFinal(){
+  const isI=S.ie==='interior'; let t=''; const a=id=>gv(id)||'';
+  if(S.f==='to_tech'){
+    t=`${a('role')}. Produce a ${a('tech_type')} in ${a('tech_style')}${a('tech_detail')?' at '+a('tech_detail'):''} of ${S.type}. ${a('negative')}.`;
+  } else if(S.f==='inpaint'){
+    t=`Preserve composition. Isolate [TARGET], replace with ${a(isI?'int_mat':'ext_mat')}.`;
+  } else {
+    t+=a('role')+' a '+a('med'); if(a('med_eng'))t+=' ('+a('med_eng')+')';
+    t+=isI?` of interior of ${S.type}. `:` of ${S.type}. `;
+    if(S.f==='creation'&&!isI){ t+=`Building: ${a('sc_st')}, ${a('sc_fp')}`; if(a('sc_ms'))t+=', '+a('sc_ms'); t+='. '; }
+    if(S.f!=='rigid') t+=`Style: ${a('style')}. `;
+    if(S.f==='creation') t+=`Camera: ${a('cam_h')} ${a('cam_d')}${a('cam_l')?' '+a('cam_l'):''}${a('cam_a')?' '+a('cam_a'):''}. `;
+    if(S.f==='sketch') t+='Lock geometry. ';
+    if(S.f==='rigid') t+='Lock geometry exactly. ';
+    t+=`Materials: ${a(isI?'int_mat':'ext_mat')}. `;
+    if(a('med_tech')) t+=`Technique: ${a('med_tech')}. `;
+    if(isI){ t+=`Furniture: ${a('furniture')}. Height: ${a('ceil')}`; if(a('sp_ft'))t+=' + '+a('sp_ft'); t+='. '; }
+    if(!isI){ if(a('sustain'))t+=`Sustainable: ${a('sustain')}. `; t+=`Site: ${a('si_den')} ${a('si_tp')}`; if(a('si_ls'))t+=' + '+a('si_ls'); t+='. '; }
+    t+=`During ${a('weather')}. Light: ${a('lt_t')}`; if(a('lt_s'))t+=' + '+a('lt_s'); t+='. ';
+    t+=`People: ${a('en_cr')}`; if(a('en_who'))t+=' ('+a('en_who')+')'; t+=' '+a('en_fx'); if(a('en_vh'))t+='. Vehicles: '+a('en_vh'); t+='. ';
+    if(isI&&a('color')) t+=`Color: ${a('color')}. `;
+    t+=`Constraints: ${a('negative')}.`;
+  }
+  const clean = t.replace(/\s+/g,' ').trim();
+  const btn = document.getElementById('circleCopy');
+  function flashCopy(){ if(btn){ const o=btn.innerHTML; btn.innerHTML='✓'; setTimeout(()=>btn.innerHTML=o,1500); } }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(clean).then(flashCopy).catch(()=>fallbackCopy(clean,flashCopy));
+  } else { fallbackCopy(clean,flashCopy); }
+}
+
+// ── BOOT ─────────────────────────────────────────────────────
 initApp();
+
+// ── CIRCLE BACK BUTTON ──────────────────────────────────────
+function handleBack(){
+  const order = ['s_formula','s_entry','s_type','s_matstyle','s_budget','s_ie','s_climate','s_leed','s_firm','bld'];
+  const backMap = {
+    s_entry:    ()=>show('s_formula'),
+    s_type:     ()=>show('s_entry'),
+    s_matstyle: ()=>show('s_entry'),
+    s_budget:   ()=>goBackFromBudget(),
+    s_ie:       ()=>show('s_budget'),
+    s_climate:  ()=>show('s_ie'),
+    s_leed:     ()=>show('s_climate'),
+    s_firm:     ()=>show('s_leed'),
+    bld:        ()=>restart(),
+  };
+  for(const id of order){
+    const el = document.getElementById(id);
+    if(el && el.style.display === 'flex'){
+      if(backMap[id]) backMap[id]();
+      return;
+    }
+  }
+}
+
+function updateCircleBack(){
+  const backBtn = document.getElementById('circleBack');
+  const copyBtn = document.getElementById('circleCopy');
+  const formula = document.getElementById('s_formula');
+  const builder = document.getElementById('bld');
+  const onFirst  = formula && formula.style.display === 'flex';
+  const inBuilder = builder && builder.style.display === 'flex';
+  if(backBtn) backBtn.style.display = onFirst ? 'none' : 'flex';
+  if(copyBtn) copyBtn.style.display = inBuilder ? 'flex' : 'none';
+}
+
+// Wrap show() to update circle on every navigation
+const _origShow = show;
+show = function(id){ _origShow(id); updateCircleBack(); };
+
+// Also update after entering builder or restarting
+const _origPickFirm = pickFirm;
+pickFirm = function(id){ _origPickFirm(id); updateCircleBack(); };
+const _origPickF = pickF;
+pickF = function(id){ _origPickF(id); updateCircleBack(); };
+const _origRestart = restart;
+restart = function(){ _origRestart(); updateCircleBack(); };
