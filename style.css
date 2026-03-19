@@ -386,8 +386,6 @@ body {
 .builder { display: none; min-height: 100vh; flex-direction: column; }
 .builder.active { display: flex; }
 
-/* Builder topbar reuses .app-topbar — no extra styles needed */
-
 .bsplit { display: flex; flex: 1; overflow: hidden; }
 .snav {
   width: 200px;
@@ -550,7 +548,6 @@ body {
 .ptx .pc { color: var(--txd); }
 .prf { padding: 8px 12px; border-top: 1px solid var(--bd); }
 
-
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .pr { display: none; }
@@ -562,7 +559,6 @@ body {
   .snav { display: none; }
   .ma { padding: 14px 14px; }
 }
-
 
 /* ── FIXED CIRCLE BUTTONS ── */
 .circle-copy {
