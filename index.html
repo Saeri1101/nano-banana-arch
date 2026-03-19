@@ -4,15 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nano Banana — Prompt Builder</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 1 — Formula
-══════════════════════════════════════════════ -->
 <div class="screen active" id="s_formula">
   <div class="app-topbar">
     <span class="tbar-logo mono">NANO BANANA</span>
@@ -25,19 +21,15 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 2 — Entry path
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_entry">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_formula')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">How do you want to start?</div>
     <div class="ssub">Choose by building program, material aesthetic, or skip directly to the builder.</div>
-    <!-- regular options first -->
     <div class="cards c2" style="max-width:840px;width:100%;margin-bottom:12px">
       <div class="card" onclick="pickEntry('program')">
         <div class="card-swatch" style="background:#329D9C"></div>
@@ -54,7 +46,6 @@
         </div>
       </div>
     </div>
-    <!-- skip always last -->
     <div class="skip-card" onclick="pickEntry('skip')" style="max-width:840px">
       <div class="sk-t">Skip → Go directly to builder</div>
       <div class="sk-d">For experienced users, inpainting, or render-to-drawing. Jump straight to manual settings.</div>
@@ -62,14 +53,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 2a — Building type (by program)
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_type">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_entry')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">What are you building?</div>
@@ -78,14 +66,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 2b — Material style (by aesthetic)
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_matstyle">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_entry')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">What should it look like?</div>
@@ -94,14 +79,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 3 — Budget / Project Level
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_budget">
   <div class="app-topbar">
-    <button class="tbar-back" id="budgetBack" onclick="goBackFromBudget()">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">Project Level</div>
@@ -110,14 +92,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 4 — Interior / Exterior
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_ie">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_budget')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">Interior or Exterior?</div>
@@ -126,14 +105,11 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 5 — Climate
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_climate">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_ie')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">Where is the project?</div>
@@ -142,42 +118,32 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 6 — LEED
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_leed">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_climate')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">Sustainability Certification</div>
     <div class="ssub">If the project targets LEED, the system will add visible sustainable features. Skip if not applicable.</div>
-    <!-- LEED options first -->
     <div class="leed-g" id="leedGrid" style="margin-bottom:14px"></div>
-    <!-- skip last -->
     <div class="skip-card" style="max-width:840px" onclick="pickLeed(null)">
       <div class="sk-t">Skip — No LEED target</div>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     SCREEN 7 — Firm Preset
-══════════════════════════════════════════════ -->
 <div class="screen" id="s_firm">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="show('s_leed')">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-spacer"></span>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="scr-body">
     <div class="stitle">Design DNA Preset</div>
     <div class="ssub">Pick a firm style to auto-fill defaults, or skip to use smart defaults.</div>
-    <!-- firm cards first -->
     <div class="firm-g" id="firmGrid" style="margin-bottom:14px"></div>
-    <!-- skip last -->
     <div class="skip-card" onclick="pickFirm(null)" style="max-width:960px">
       <div class="sk-t">Skip — Use Smart Defaults</div>
       <div class="sk-d">Best materials, lighting, and weather for your building type, budget, and climate. Adjust anything after.</div>
@@ -185,12 +151,8 @@
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════
-     BUILDER
-══════════════════════════════════════════════ -->
 <div class="builder" id="bld">
   <div class="app-topbar">
-    <button class="tbar-back" onclick="restart()">← Back</button>
     <span class="tbar-logo mono">NANO BANANA</span>
     <span class="tbar-tag mono" id="xIE"></span>
     <span class="tbar-tag mono" id="xBud"></span>
@@ -198,7 +160,7 @@
     <span class="tbar-tag mono" id="xLeed"></span>
     <span class="tbar-info" id="xInfo"></span>
     <button class="tbar-btn" onclick="resetDef()">Reset Defaults</button>
-    <button class="tbar-btn primary mono" onclick="cpFinal()">Copy Prompt</button>
+    <button class="tbar-btn" onclick="restart()">Back to Start</button>
   </div>
   <div class="bsplit">
     <div style="flex:1;display:flex;overflow:hidden">
@@ -209,10 +171,13 @@
       <div class="prh mono">Live Prompt</div>
       <div class="prp mono" id="prp"></div>
       <div class="prb"><div class="ptx mono" id="ptx"></div></div>
-      <div class="prf"><button class="prf-btn mono" onclick="cpFinal()">Copy Full Prompt</button></div>
+
     </div>
   </div>
 </div>
+
+<button class="circle-copy" id="circleCopy" onclick="cpFinal()" style="display:none">Copy<br>Prompt</button>
+<button class="circle-back" id="circleBack" onclick="handleBack()" style="display:none">Back</button>
 
 <script src="app.js"></script>
 </body>
