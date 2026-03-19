@@ -38,7 +38,7 @@ const MAT_STYLES = [
   { id:'timber',         t:'Timber / Wood',      d:'Warm, natural, sustainable. CLT, cedar, charred timber.',    k:'Cedar slats, Shou Sugi Ban, Glulam, CLT, timber battens',           color: P.lt,
     defaults:{ style:['Haptic Materiality'], ext_mat:['Western Red Cedar slats','Shou Sugi Ban (charred)','Vertical battens','Glulam soffit'], int_mat:['White oak plank','Acoustic timber slats','Glulam beams','Cork tile'], lt_t:'warm 3000K', color:['Warm earth tones','Timber + brass'] }},
   { id:'concrete',       t:'Concrete / Stone',   d:'Heavy, monolithic, brutalist. Raw or refined.',              k:'Board-formed, rammed earth, travertine, terrazzo',                  color: P.navy,
-    defaults:{ style:['Stoic Monolithic Form'], ext_mat:['Board-formed concrete','Honed travertine','Bush-hammered limestone'], int_mat:['Polished concrete','Honed granite','Board-formed concrete wall','Epoxy terrazzo'], lt_t:'neutral 4000K', weather:'overcast with soft diffuse light', color:['True-color materials'] }},
+    defaults:{ style:['Monolithic Phenomenological'], ext_mat:['Board-formed concrete','Honed travertine','Bush-hammered limestone'], int_mat:['Polished concrete','Honed granite','Board-formed concrete wall','Epoxy terrazzo'], lt_t:'neutral 4000K', weather:'overcast with soft diffuse light', color:['True-color materials'] }},
   { id:'steel',          t:'Metal / Steel',      d:'Industrial, precise, high-tech. Corten, zinc, aluminum.',    k:'Corten steel, standing seam zinc, perforated mesh, diagrid',        color: P.teal,
     defaults:{ style:['Structural Expressionism','Industrial Minimalism'], ext_mat:['Corten steel (weathered rust)','Standing seam zinc','Brushed aluminum','Perforated stainless mesh'], int_mat:['Exposed steel columns','Steel grating','Raised access floor'], lt_t:'cool 6500K', color:['Cool stone + glass'] }},
   { id:'glass',          t:'Glass / Transparent',d:'Light, open, corporate. Curtain walls, structural glazing.', k:'Unitized curtain wall, fritted glass, double-skin, structural glazing', color: P.pale,
@@ -61,28 +61,28 @@ const CLIMATES = [
 ];
 
 const LEED_LEVELS = [
-  { id:null,        t:'No LEED',  d:'Skip' },
-  { id:'certified', t:'Certified',d:'40–49 pts', color: P.pale,  features:['Green roof (sedum)','Bioswale','Permeable pavers'] },
-  { id:'silver',    t:'Silver',   d:'50–59 pts', color: P.lt,    features:['Green roof (sedum)','Bioswale','Permeable pavers','Solar bollard lights','Native meadow'] },
-  { id:'gold',      t:'Gold',     d:'60–79 pts', color: P.green, features:['Green roof (sedum)','Bioswale','Permeable pavers','Rooftop PV array','Native meadow','EV charging stations','Living wall','Rainwater cistern'] },
-  { id:'platinum',  t:'Platinum', d:'80+ pts',   color: P.navy,  features:['Green roof (sedum)','Bioswale','Permeable pavers','Rooftop PV array','BIPV','Native meadow','EV charging stations','Living wall','Rainwater cistern','Pollinator corridor','Constructed wetland','Cool roof'] },
+  { id:null,        t:'No Target',d:'Standard Code' },
+  { id:'certified', t:'Certified',d:'40–49 pts', color: P.pale,  features:['Cool roof','Bioswale','Deep overhangs'] },
+  { id:'silver',    t:'Silver',   d:'50–59 pts', color: P.lt,    features:['Cool roof','Bioswale','Fritted glass','Rainwater cistern','Native meadow'] },
+  { id:'gold',      t:'Gold',     d:'60–79 pts', color: P.green, features:['Green roof (sedum)','Bioswale','Fritted glass','Rooftop PV array','Dynamic louvers','EV charging stations'] },
+  { id:'platinum',  t:'Platinum', d:'80+ pts',   color: P.navy,  features:['Extensive green roof','Constructed wetland','BIPV','Kinetic shading facade','Double-skin facade'] },
 ];
 
 // Firm preset colors cycle through palette
 const FIRM_COLORS = [P.navy, P.teal, P.green, P.lt, P.pale, P.navy, P.teal, P.green, P.lt, P.pale, P.navy, P.teal];
 const FIRMS = [
-  { id:'fluid_param', n:'Fluid Parametric',        ref:'Zaha Hadid Architects', d:'Seamless transitions. Everything flows.',    kw:'sinuous curves, shell structures' },
-  { id:'pragmatic',   n:'Pragmatic Utopian',        ref:'BIG (Bjarke Ingels)',   d:'Super-forms. Green terraces.',              kw:'stacked volumes, cascading terraces' },
-  { id:'hightech',    n:'High-Tech Structuralism',  ref:'Foster + Partners',     d:'Beauty in the skeleton.',                   kw:'diagrid, precision steel' },
-  { id:'hyper_brut',  n:'Hyper-Contextual',         ref:'OMA / Koolhaas',        d:'Massive cantilevers. Raw.',                 kw:'cantilevered concrete, polycarbonate' },
-  { id:'pixel',       n:'Pixelated Density',        ref:'MVRDV',                 d:'Colorful data points.',                     kw:'pixelated facade, glass bricks' },
-  { id:'corporate',   n:'Corporate Rationalism',    ref:'SOM / HOK',             d:'Gold standard high-rise.',                  kw:'sleek curtain wall, limestone' },
-  { id:'monolithic',  n:'Monolithic Phenom.',       ref:'Zumthor / Ando',        d:'Silence. Material truth.',                  kw:'board-formed concrete, chiaroscuro' },
-  { id:'topo',        n:'Topographical',            ref:'Snøhetta / Kuma',       d:'Building = landscape.',                     kw:'timber lattice, green roof' },
-  { id:'craft',       n:'Material Craft',           ref:'SHoP Architects',       d:'Digital fab, textured skins.',              kw:'Corten, parametric copper' },
-  { id:'playful',     n:'Playful Spectacle',        ref:'Heatherwick Studio',    d:'Dramatic one-off gestures.',                kw:'botanical, living facades' },
-  { id:'folded',      n:'Folded Tectonics',         ref:'Morphosis / FOA',       d:'Angular geological fracture.',              kw:'folded plate, scored concrete' },
-  { id:'dynamic',     n:'Dynamic Loops',            ref:'UNStudio',              d:'Twists, continuous surfaces.',              kw:'Moebius, metallic, rhythmic' },
+  { id:'fluid_param', n:'Fluid Parametric',        ref:'Zaha Hadid',            d:'Continuous differentiation.',                kw:'sinuous curves, parametricism' },
+  { id:'diagrammatic',n:'Cross-Programmed',        ref:'OMA / Koolhaas',        d:'Bigness and structural diagrams.',           kw:'polycarbonate, raw steel, cantilever' },
+  { id:'engineered',  n:'Engineered Rationalism',  ref:'SOM',                   d:'Structural performance as form.',            kw:'bundled tube, exposed diagrid, sleek glass' },
+  { id:'monolithic',  n:'Monolithic Phenom.',      ref:'Zumthor / Ando',        d:'Material truth and chiaroscuro.',            kw:'board-formed concrete, atmospheric light' },
+  { id:'particulate', n:'Particulate Tectonics',   ref:'Kengo Kuma',            d:'Dissolution of mass via small elements.',    kw:'timber lattice, ceramic louvers, immaterial' },
+  { id:'topo',        n:'Topographical',           ref:'Snøhetta',              d:'Building as continuous landscape.',          kw:'accessible roof, ground plane extension' },
+  { id:'folded',      n:'Folded Tectonics',        ref:'Morphosis / FOA',       d:'Continuous topological surfaces.',           kw:'folded plate, angular faceted geometry' },
+  { id:'pixel',       n:'Data-Driven Density',     ref:'MVRDV',                 d:'Programmatic extrusion and pixelation.',     kw:'pixelated massing, extreme cantilevers' },
+  { id:'pragmatic',   n:'Pragmatic Utopian',       ref:'BIG',                   d:'Hedonistic sustainability, super-forms.',    kw:'stepped terraces, twisted courtyard' },
+  { id:'craft',       n:'Digital Craft',           ref:'SHoP Architects',       d:'Parametric masonry and facade textures.',    kw:'parametric brick, copper patina, terracotta' },
+  { id:'dynamic',     n:'Dynamic Topology',        ref:'UNStudio',              d:'Moebius loops and deep spatial sequences.',  kw:'continuous loop, double-curved surface' },
+  { id:'hightech',    n:'Structural Expression',   ref:'Foster / Rogers',       d:'Exposed servicing and tensile structures.',  kw:'bow-string truss, exposed MEP, tension rods' },
 ];
 
 // ── GUIDANCE ────────────────────────────────────────────────
@@ -103,7 +103,7 @@ const GUIDE = {
 // ── DEFAULTS ────────────────────────────────────────────────
 const DEFS = {
   'Library':{ style:['Haptic Materiality'], ext_mat:['Brick masonry','Cedar slats','Fritted glass'], int_mat:['White oak plank','Cork tile','Acoustic timber slats','Limewash plaster'], weather:'soft spring morning with light mist', lt_t:'warm 3000K', en_cr:'few people (3-5)', ceil:'4m generous', furniture:['Reading nook (oak)','Communal table','Bookshelf wall','Pendant reading lamp'], color:['Warm earth tones'] },
-  'Museum':{ style:['Stoic Monolithic Form'], ext_mat:['Board-formed concrete','Honed travertine','Copper panels (patina)'], int_mat:['Polished concrete','Honed granite','Cloud ceiling'], weather:'overcast with soft diffuse light', lt_t:'neutral 4000K', en_cr:'few people (3-5)', ceil:'6m double-height', furniture:['Museum bench','Display vitrine','Track lighting'], color:['True-color materials'] },
+  'Museum':{ style:['Monolithic Phenomenological'], ext_mat:['Board-formed concrete','Honed travertine','Copper panels (patina)'], int_mat:['Polished concrete','Honed granite','Cloud ceiling'], weather:'overcast with soft diffuse light', lt_t:'neutral 4000K', en_cr:'few people (3-5)', ceil:'6m double-height', furniture:['Museum bench','Display vitrine','Track lighting'], color:['True-color materials'] },
   'Office Tower':{ style:['Corporate Rationalism'], ext_mat:['Unitized curtain wall','Polished limestone base'], int_mat:['Raised access floor','CLT panels','Acoustic timber slats'], weather:'bright mid-summer harsh sun', lt_t:'neutral 4000K', en_cr:'moderate groups', ceil:'3m standard', furniture:['Sit-stand desk','Desk chairs','Whiteboard wall'], color:['True-color materials'] },
   'Bar / Nightclub':{ style:['Industrial Minimalism'], int_mat:['Exposed brick','Back-painted glass','End-grain timber'], weather:'summer night with light trails', lt_t:'amber 2200K', en_cr:'busy crowd', ceil:'4m generous', furniture:['Bar stools','Banquette','Neon sign'], color:['Dark moody'] },
   'Single-Family House':{ style:['Critical Regionalism'], ext_mat:['Brick masonry','Cedar slats','Standing seam metal roof'], int_mat:['White oak plank','Limewash plaster'], weather:'golden hour with long shadows', lt_t:'warm 3000K', en_cr:'single figure', ceil:'3m standard', furniture:['Mid-century sofa','Fireplace','Floor lamp'], color:['Warm earth tones'] },
@@ -150,7 +150,6 @@ function initApp(){
 function pickF(id){
   S.f = id;
   if(id === 'to_tech'){
-    // Render→Drawing: skip wizard, go directly to builder
     S.type    = 'Render';
     S.ie      = 'exterior';
     S.climate = null;
@@ -198,7 +197,6 @@ function pickEntry(path){
     ).join('');
     show('s_matstyle');
   } else {
-    // Skip → go directly to budget
     S.type='Custom'; S.matStyle=null;
     goToBudget();
   }
@@ -271,9 +269,9 @@ function goToClimate(){
 
 function pickClimate(id){
   S.climate = id;
-  document.getElementById('leedGrid').innerHTML = LEED_LEVELS.filter(l=>l.id).map(l =>
-    `<div class="leed-c" onclick="pickLeed('${l.id}')">
-      <div class="lc-swatch" style="background:${l.color}"></div>
+  document.getElementById('leedGrid').innerHTML = LEED_LEVELS.map(l =>
+    `<div class="leed-c ${l.id===null?'skip-card':''}" onclick="pickLeed(${l.id ? `'${l.id}'` : null})">
+      <div class="lc-swatch" style="background:${l.color||'transparent'}"></div>
       <div class="leed-body">
         <div class="lc-t">${l.t}</div>
         <div class="lc-d">${l.d}</div>
@@ -319,79 +317,58 @@ function applyAllDefaults(){
   }
   const fb = DEF_FB;
 
-  // Role
   const roles = { creation:'Act as an expert architectural visualizer and generate', sketch:'RENDER the provided sketch, locking geometry', rigid:'Render the provided technical input, locking geometry', inpaint:'Preserve exact composition, isolate target', to_tech:'Convert the provided image into a technical architectural drawing' };
   S.sel.role = roles[S.f];
-
-  // Medium
   S.sel.med_cat = 'photorealistic';
   S.sel.med     = '4K architectural photography';
-
-  // Style
   S.sel.style = new Set(d.style || fb.style);
-
-  // Camera
   S.sel.cam_h = d.cam_h || fb.cam_h;
   S.sel.cam_d = d.cam_d || fb.cam_d;
 
-  // Materials
   if(isI) S.sel.int_mat = new Set(d.int_mat || fb.int_mat);
   else    S.sel.ext_mat = new Set(d.ext_mat || fb.ext_mat);
 
-  // Climate-based weather
   const clim = CLIMATES.find(c=>c.id===S.climate);
   S.sel.weather = clim?.weather || d.weather || fb.weather;
-
-  // Vegetation
   if(!isI && clim?.veg) S.sel.si_ls = new Set(clim.veg);
 
-  // Lighting
   S.sel.lt_t = d.lt_t || fb.lt_t;
-
-  // Entourage
   S.sel.en_cr = d.en_cr || fb.en_cr;
   S.sel.en_fx = 'slight motion blur';
 
-  // Interior
   if(isI){
     S.sel.ceil      = d.ceil      || fb.ceil;
     S.sel.furniture = new Set(d.furniture || fb.furniture);
     S.sel.color     = new Set(d.color || fb.color || []);
   }
 
-  // Scale
   if(S.f==='creation' && !isI){ S.sel.sc_st='4-6 stories'; S.sel.sc_fp='mid-block'; }
-
-  // Site
   if(!isI){ S.sel.si_den='urban mid-rise'; S.sel.si_tp='flat'; }
 
-  // LEED features
   if(S.leed && !isI){
     const leedDef = LEED_LEVELS.find(l=>l.id===S.leed);
     if(leedDef?.features) S.sel.sustain = new Set(leedDef.features);
   }
 
-  // Negatives
   S.sel.negative = new Set(['Maintain verticals','No text or watermarks','No blurry foreground',"Don't crop building",'No distorted faces','No visual clutter']);
 
-  // Tech drawing defaults
   if(S.f==='to_tech'){ S.sel.tech_type='front elevation'; S.sel.tech_style='crisp black lines on white background'; S.sel.role='Convert the provided image into a technical architectural drawing'; }
 
-  // Firm overrides
+  // Updated Firm Overrides mapping to the new DNA IDs
   if(S.firm){
     const presets = {
-      fluid_param:{ style:['Fluid Parametric'],             ext_mat:['Fiber-reinforced polymer','Seamless Corian','Curved glass'] },
-      pragmatic:  { style:['Pragmatic Utopian'],            ext_mat:['Cedar slats','Low-iron glass','Green roof (sedum)'] },
-      hightech:   { style:['High-Tech Structuralism'],      ext_mat:['Unitized curtain wall','Brushed aluminum','Exposed diagrid'] },
-      hyper_brut: { style:['Hyper-Contextual Brutalism'],   ext_mat:['Board-formed concrete','Polycarbonate','Corten steel'] },
-      pixel:      { style:['Pixelated Density'],            ext_mat:['Colorful glazed panels','Glass bricks','Perforated metal'] },
-      corporate:  { style:['Corporate Rationalism'],        ext_mat:['Unitized curtain wall','Polished limestone','Stainless mullions'] },
-      monolithic: { style:['Monolithic Phenomenological'],  ext_mat:['Board-formed concrete','Honed travertine'] },
-      topo:       { style:['Topographical Integration'],    ext_mat:['Cedar slats','Green roof (sedum)','Low-iron glass'] },
-      craft:      { style:['Material Craftsmanship'],       ext_mat:['Corten steel','Copper shingles','Timber fins'] },
-      playful:    { style:['Playful Spectacle'],            ext_mat:['Living wall','Copper panels (patina)','Curved glass'] },
-      folded:     { style:['Folded Tectonics'],             ext_mat:['Corten steel','Board-formed concrete'] },
-      dynamic:    { style:['Dynamic Loops'],                ext_mat:['Brushed aluminum','Bronze-tinted glass'] },
+      fluid_param:  { style:['Fluid Parametric'],             ext_mat:['Fiber-reinforced polymer','Seamless Corian','Curved glass'] },
+      diagrammatic: { style:['Cross-Programmed Urbanism'],    ext_mat:['Polycarbonate','Corten steel','Exposed steel columns'] },
+      engineered:   { style:['Engineered Rationalism'],       ext_mat:['Unitized curtain wall','Polished limestone','Stainless mullions'] },
+      monolithic:   { style:['Monolithic Phenomenological'],  ext_mat:['Board-formed concrete','Honed travertine'] },
+      particulate:  { style:['Particulate Tectonics'],        ext_mat:['Timber lattice','Ceramic louvers','Ultraclear glass'] },
+      topo:         { style:['Topographical Integration'],    ext_mat:['Cedar slats','Green roof (sedum)','Low-iron glass'] },
+      folded:       { style:['Folded Tectonics'],             ext_mat:['Corten steel','Board-formed concrete'] },
+      pixel:        { style:['Pixelated Density'],            ext_mat:['Colorful glazed panels','Glass bricks','Perforated metal'] },
+      pragmatic:    { style:['Pragmatic Utopian'],            ext_mat:['Cedar slats','Low-iron glass','Green roof (sedum)'] },
+      craft:        { style:['Material Craftsmanship'],       ext_mat:['Corten steel','Copper shingles','Parametric brick'] },
+      dynamic:      { style:['Dynamic Loops'],                ext_mat:['Brushed aluminum','Bronze-tinted glass'] },
+      hightech:     { style:['High-Tech Structuralism'],      ext_mat:['Unitized curtain wall','Brushed aluminum','Exposed diagrid'] },
     };
     const p = presets[S.firm];
     if(p){
@@ -399,6 +376,33 @@ function applyAllDefaults(){
       if(!isI && p.ext_mat) S.sel.ext_mat = new Set(p.ext_mat);
     }
   }
+}
+
+// ── CONFLICT ENGINE ──────────────────────────────────────────
+function checkConflicts() {
+  const w = [];
+  const extMat = gs('ext_mat');
+  const cli = S.climate;
+  const bud = S.budget;
+  const wea = S.sel.weather || '';
+  
+  if (cli === 'hot_dry' && extMat.has('Unitized curtain wall') && !extMat.has('Brise-soleil') && !extMat.has('Kinetic louvers') && !extMat.has('Fritted glass')) {
+    w.push({ t: "Thermal Load Conflict", d: "Using unprotected curtain walls in a Hot & Dry climate is a thermal failure. The AI will likely render glaring, blown-out glass. <strong>Fix: Add 'Brise-soleil', 'Fritted glass', or 'Kinetic louvers' to Exterior Materials.</strong>" });
+  }
+  
+  if (bud === 'standard' && (gs('style').has('Fluid Parametric') || gs('style').has('High-Tech Structuralism'))) {
+    w.push({ t: "Fabrication Mismatch", d: "Parametric/High-Tech architectures require bespoke CNC fabrication. Prompting this on a 'Standard' budget confuses the AI, often resulting in cheap-looking plastic renders. <strong>Fix: Raise budget to High-End, or switch style to Industrial/Rationalism.</strong>" });
+  }
+
+  if ((cli === 'tropical' || cli === 'hot_humid' || cli === 'hot_dry') && (wea.includes('snow') || wea.includes('frost'))) {
+    w.push({ t: "Geographic Contradiction", d: "You selected a tropical/arid climate but added snow. Text-to-image models hallucinate heavily when geographic biomes conflict with atmospheric conditions. <strong>Fix: Change climate to Nordic/Cold, or weather to clear/rain.</strong>" });
+  }
+
+  if (gs('style').size > 1) {
+    w.push({ t: "Prompt Dilution", d: `You selected ${gs('style').size} styles. AI averages out contradictory terms, resulting in generic 'mush' architecture. <strong>Fix: Limit yourself to ONE dominant architectural style.</strong>` });
+  }
+
+  return w;
 }
 
 // ════════════════════════════════════════════════════════════
@@ -443,7 +447,6 @@ function render(){
   const fo = FIRMS.find(f=>f.id===S.firm);
   if(inf) inf.innerHTML   = `<strong>${S.type||''}</strong>${fo?' · '+fo.n:''}`;
 
-  // hide empty tags
   [ie,bud,cli,led].forEach(el=>{ if(el) el.style.display=el.textContent?'':'none'; });
 
   const steps=getSteps(), nav=document.getElementById('snav');
@@ -465,6 +468,15 @@ function getG(sid){ return GUIDE[S.type]?.[sid] || GUIDE._default?.[sid] || null
 function renderStep(){
   const steps=getSteps(), step=steps[S.step], a=document.getElementById('ma');
   let h=`<div style="margin-bottom:6px"><div class="mhs mono">STEP ${S.step+1} OF ${steps.length}</div><div class="mht">${step.t}</div><div class="mhd">${step.d||''}</div></div>`;
+  
+  // INJECT WARNINGS HERE
+  const conflicts = checkConflicts();
+  if (conflicts.length > 0) {
+    conflicts.forEach(c => {
+      h += `<div class="guide gw"><div class="gl mono">⚠️ SYSTEM WARNING</div><div class="gt">${c.t}: ${c.d}</div></div>`;
+    });
+  }
+
   const g=getG(step.id);
   if(g&&(g.t||g.r?.length)){
     h+=`<div class="guide gi"><div class="gl mono">💡 Best for ${S.type}</div><div class="gt">${g.t}</div>`;
@@ -475,7 +487,6 @@ function renderStep(){
     h+=`<div class="guide gs"><div class="gl mono">💬 Also consider</div><div class="gr">${g.r2.map(r=>`<span class="rt sec ${isROn(r)?'on':''}" onclick="rTog('${step.id}','${esc(r)}')">${isROn(r)?'✓ ':''}${r}</span>`).join('')}</div></div>`;
   }
 
-  // LEED tracking
   if(step.id==='sustain'&&S.leed){
     const leedDef=LEED_LEVELS.find(l=>l.id===S.leed);
     if(leedDef?.features){
@@ -569,18 +580,15 @@ function rTechOut(){
 
 function rStyle(){
   const recs=new Set((getG('style')||{}).r||[]), recs2=new Set((getG('style')||{}).r2||[]);
-  const styleCount=gs('style').size;
   let h='';
-  if(styleCount>1) h+=`<div class="guide gw"><div class="gl mono">⚠️ Multiple styles selected (${styleCount})</div><div class="gt">AI works best with <strong>ONE style</strong>. Multiple styles may produce confused results.</div></div>`;
   const cats=[
-    {c:'Monolithic',       t:['Stoic Monolithic Form','Contemporary Brutalism','Haptic Materiality','Atmospheric Depth']},
-    {c:'Vibrant',          t:['Pixelated Massing','Data-Driven Form','Typological Remix','Green Dip']},
-    {c:'High-Tech',        t:['Engineered Rationalism','Industrial Minimalism','Structural Expressionism','High-Tech','Biomimetic curvature']},
+    {c:'Monolithic',       t:['Monolithic Phenomenological','Contemporary Brutalism','Haptic Materiality','Atmospheric Depth']},
+    {c:'Vibrant',          t:['Pixelated Density','Data-Driven Form','Typological Remix','Green Dip']},
+    {c:'High-Tech',        t:['Engineered Rationalism','Industrial Minimalism','Structural Expressionism','High-Tech Structuralism','Biomimetic curvature']},
     {c:'Contextual',       t:['Critical Regionalism','Desert Modernism','Tropical Modernism','Nordic Minimalism','Parametric Vernacular']},
     {c:'Parametric',       t:['Fluid Parametric','Dynamic Loops','Topologically Optimized','Sinuous Curves']},
     {c:'Deconstructivist', t:['Angular Fragmentation','Folded Plate Geometry','Folded Tectonics']},
-    {c:'Firm Presets',     t:['Pragmatic Utopian','Hyper-Contextual Brutalism','Pixelated Density','Corporate Rationalism','Monolithic Phenomenological','Topographical Integration','Playful Spectacle','Material Craftsmanship','High-Tech Structuralism']},
-    {c:'Historical',       t:['Art Deco Revival','Art Nouveau','Neo-Futurism','International Style','Postmodern Classicism']},
+    {c:'Firm DNA',         t:['Cross-Programmed Urbanism','Pragmatic Utopian','Topographical Integration','Material Craftsmanship']},
   ];
   cats.forEach(ca=>{
     const cnt=cntCat('style',ca.t);
@@ -709,7 +717,6 @@ function rNeg(){
   return '<div class="hier-items">'+tags.map(t=>`<span class="tag ${S.sel.negative?.has(t)?'on':'dim'}" onclick="tagTog('negative','${esc(t)}')">${t}</span>`).join('')+'</div>';
 }
 
-// ── DRILL RENDERER ───────────────────────────────────────────
 function rDrill(sid,data){
   const recs=new Set((getG(sid)||{}).r||[]), recs2=new Set((getG(sid)||{}).r2||[]);
   let h='';
@@ -728,15 +735,14 @@ function rDrill(sid,data){
   });
   return h;
 }
+
 function cntD(sid,sec){ let c=0; sec.subs.forEach(s=>s.tags.forEach(t=>{ if(gs(sid).has(t))c++; })); return c; }
 
-// ── MATERIAL DATA ────────────────────────────────────────────
 function getExtD(){ return [{t:'Concrete & Stone',subs:[{l:'Type',tags:['Board-formed concrete','Pitted brutalist','Smooth precast','Fluted precast','Rammed earth','Bush-hammered limestone','Honed travertine']},{l:'Finish',tags:['Natural grey','White concrete','Dark charcoal','Warm sandstone','Weathered']}]},{t:'Metal',subs:[{l:'Type',tags:['Corten steel (weathered rust)','Standing seam zinc','Brushed aluminum','Perforated stainless mesh','Copper panels (patina)','Insulated metal panels']},{l:'Pattern',tags:['Vertical seam','Horizontal lapped','Perforated screen','Cassette panels']}]},{t:'Wood',subs:[{l:'Type',tags:['Shou Sugi Ban (charred)','Western Red Cedar slats','Vertical battens','Horizontal rainscreen','CNC timber louvers','Timber shingle']},{l:'Tone',tags:['Natural light','Honey warm','Dark stained','Charred black','Weathered grey']}]},{t:'Glass & Curtain Wall',subs:[{l:'System',tags:['Unitized curtain wall','Frameless structural glazing','Double-skin facade','Punched windows','Ribbon windows']},{l:'Glass',tags:['Low-iron ultra-clear','Bird-safe fritted','Reflective bronze-tinted','Light-green tinted','Electrochromic smart','Spandrel (opaque)','Polycarbonate','Channel glass']},{l:'Mullion',tags:['Polished stainless steel','Anodized aluminum','Black powder-coated','Gunmetal','Minimal silicone']}]},{t:'Shading',subs:[{l:'Type',tags:['Terracotta baguettes','Brise-soleil','Fixed louvers','Timber screen','Metal mesh','Kinetic louvers','PTFE membrane']}]},{t:'Roof',subs:[{l:'Type',tags:['Standing seam metal','Green roof (sedum)','ETFE cushion','Steel truss','PV integrated','Flat concrete','Copper (patina)']}]},{t:'Base',subs:[{l:'Type',tags:['Columns + glass','Rusticated stone','Glass at ground','Pilotis','Canopy entry','Arcade','Masonry plinth']}]}]; }
 function getIntD(){ return [{t:'Walls',subs:[{l:'Raw',tags:['Board-formed concrete','Exposed brick','Raw plaster','Rammed earth']},{l:'Warm',tags:['Limewash plaster','White oak joinery','Acoustic felt','Cork wall','Acoustic timber slats','Venetian plaster']},{l:'Refined',tags:['Back-painted glass','Writeable glass','Lacquered panel','Fabric acoustic']}]},{t:'Floors',subs:[{l:'Hard',tags:['Polished concrete','Exposed aggregate','Epoxy terrazzo','Honed granite','Marble mosaic','Raised access floor']},{l:'Warm',tags:['White oak plank','Dark walnut','End-grain timber','Cork tile','Bamboo','Herringbone parquet']}]},{t:'Ceilings',subs:[{l:'Exposed',tags:['Exposed MEP plenum','Waffle slab','Painted ductwork']},{l:'Finished',tags:['Acoustic timber slats','Glulam soffit','Perforated baffles','Cloud ceiling','Stretch fabric']}]},{t:'Structure',subs:[{l:'Type',tags:['Exposed steel columns','Steel trusses','CLT panels','Glulam beams','Timber post-beam','Concrete reveals']}]},{t:'Partitions',subs:[{l:'Type',tags:['Full-height glass','Frosted glass','Steel-framed glass','Acoustic curtain','Timber screen','Pivot door','Frameless glass door']}]}]; }
-function getSustD(){ return [{t:'Roof',subs:[{l:'Water',tags:['Green roof (sedum)','Blue roof','Rainwater cistern']},{l:'Energy',tags:['Rooftop PV array','Solar thermal','Cool roof']},{l:'Ecology',tags:['Pollinator garden','Bird habitat']}]},{t:'Facade',subs:[{l:'Energy',tags:['BIPV','Passive shading','Double-skin ventilation']},{l:'Ecology',tags:['Living wall','Vertical planting']}]},{t:'Ground',subs:[{l:'Water',tags:['Bioswale','Permeable pavers','Retention pond','Constructed wetland']},{l:'Energy',tags:['Solar bollards','EV charging']},{l:'Ecology',tags:['Native meadow','Pollinator corridor','Food garden']}]}]; }
+function getSustD(){ return [{t:'Roof',subs:[{l:'Water',tags:['Extensive green roof','Green roof (sedum)','Blue roof','Rainwater cistern']},{l:'Energy',tags:['Rooftop PV array','Solar thermal','Cool roof']},{l:'Ecology',tags:['Pollinator garden','Bird habitat']}]},{t:'Facade',subs:[{l:'Energy',tags:['BIPV','Kinetic shading facade','Passive shading','Double-skin facade','Dynamic louvers']},{l:'Ecology',tags:['Living wall','Vertical planting']}]},{t:'Ground',subs:[{l:'Water',tags:['Bioswale','Permeable pavers','Retention pond','Constructed wetland']},{l:'Energy',tags:['Solar bollards','EV charging stations']},{l:'Ecology',tags:['Native meadow','Pollinator corridor','Food garden']}]}]; }
 function getFurnD(){ return [{t:'Seating',subs:[{l:'Lounge',tags:['Lounge chairs','Sofa','Barcelona chairs','Bean bags','Window seat','Banquette']},{l:'Task',tags:['Desk chairs','Bar stools','Collaborative pod','Lecture seats']},{l:'Public',tags:['Reading nook','Museum bench','Waiting chairs']}]},{t:'Tables',subs:[{l:'Work',tags:['Sit-stand desk','Communal table','Standing table','Kitchen island']},{l:'Display',tags:['Reception desk','Bookshelf wall','Display vitrine']}]},{t:'Atmosphere',subs:[{l:'Lighting',tags:['Feature pendant','Chandelier','Pendant cluster','Track lighting','Floor lamp','Exposed filament','Neon sign']},{l:'Plants',tags:['Plant wall','Large planter','Olive tree','Hanging plants','Indoor tropical']},{l:'Features',tags:['Fireplace','Art installation','Water feature','Acoustic rug','Candles']}]},{t:'Equipment',subs:[{l:'Tech',tags:['Wayfinding totem','Projection screen','Whiteboard wall']},{l:'Transit',tags:['Ticket machine','Flight board','Gate seats','Moving walkway','Escalators']}]}]; }
 
-// ── UTILITIES ────────────────────────────────────────────────
 function esc(s){ return s.replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
 function mkSpec(id,opts){
   const cur=S.sel[id];
@@ -751,7 +757,6 @@ function isROn(r){ for(const[k,v]of Object.entries(S.sel)){ if(v instanceof Set&
 function rTog(sid,val){ for(const[k,v]of Object.entries(S.sel)){ if(v instanceof Set&&v.has(val)){ v.delete(val); render(); return; } } if(!S.sel[sid])S.sel[sid]=new Set(); S.sel[sid].add(val); render(); }
 function cntCat(sid,tags){ let c=0; tags.forEach(t=>{ if(gs(sid).has(t))c++; }); return c; }
 
-// ── PROMPT RENDER ────────────────────────────────────────────
 function renderPrompt(){
   const steps=getSteps(); let total=0,filled=0;
   Object.keys(S.sel).forEach(k=>{ const v=S.sel[k]; total++; if(v instanceof Set?v.size>0:!!v)filled++; });
@@ -793,7 +798,6 @@ function renderPrompt(){
   document.getElementById('ptx').innerHTML=h;
 }
 
-// ── CLIPBOARD FALLBACK ───────────────────────────────────────
 function fallbackCopy(text, cb){
   const ta = document.createElement('textarea');
   ta.value = text;
@@ -804,7 +808,6 @@ function fallbackCopy(text, cb){
   document.body.removeChild(ta);
 }
 
-// ── COPY FINAL PROMPT ────────────────────────────────────────
 function cpFinal(){
   const isI=S.ie==='interior'; let t=''; const a=id=>gv(id)||'';
   if(S.f==='to_tech'){
@@ -836,10 +839,8 @@ function cpFinal(){
   } else { fallbackCopy(clean,flashCopy); }
 }
 
-// ── BOOT ─────────────────────────────────────────────────────
 initApp();
 
-// ── CIRCLE BACK BUTTON ──────────────────────────────────────
 function handleBack(){
   const order = ['s_formula','s_entry','s_type','s_matstyle','s_budget','s_ie','s_climate','s_leed','s_firm','bld'];
   const backMap = {
@@ -873,11 +874,9 @@ function updateCircleBack(){
   if(copyBtn) copyBtn.style.display = inBuilder ? 'flex' : 'none';
 }
 
-// Wrap show() to update circle on every navigation
 const _origShow = show;
 show = function(id){ _origShow(id); updateCircleBack(); };
 
-// Also update after entering builder or restarting
 const _origPickFirm = pickFirm;
 pickFirm = function(id){ _origPickFirm(id); updateCircleBack(); };
 const _origPickF = pickF;
